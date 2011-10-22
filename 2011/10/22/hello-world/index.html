@@ -96,8 +96,76 @@ Hello world!   | Eric van Zanten &#8211; Statically</title>
 								</p>
 			</div>
 	
-<!-- You can start editing here. -->
+<div id="disqus_thread">
+                    <div id="dsq-content">
+            <ul id="dsq-comments">
+                    <li id="dsq-comment-1">
+                    <div id="dsq-comment-header-1" class="dsq-comment-header">
+                        <cite id="dsq-cite-1">
+    http://wordpress.org/                            <span id="dsq-author-user-1">Mr WordPress</span>
+                            </cite>
+                    </div>
+                    <div id="dsq-comment-body-1" class="dsq-comment-body">
+                        <div id="dsq-comment-message-1" class="dsq-comment-message"><p>Hi, this is a comment.<br />To delete a comment, just log in and view the post&#039;s comments. There you will have the option to edit or delete them.</p>
+</div>
+                    </div>
+                </li>
+                </ul>
+        </div>
+    </div>
 
+<script type="text/javascript">
+/* <![CDATA[ */
+    var disqus_url = 'http://static/wordpress/2011/10/22/hello-world/';
+    var disqus_identifier = '1 http://static/wordpress/?p=1';
+    var disqus_container_id = 'disqus_thread';
+    var disqus_domain = 'disqus.com';
+    var disqus_shortname = 'static-eric';
+    var disqus_title = "Hello world!";
+        var disqus_config = function () {
+        var config = this; // Access to the config object
+
+        /* 
+           All currently supported events:
+            * preData — fires just before we request for initial data
+            * preInit - fires after we get initial data but before we load any dependencies
+            * onInit  - fires when all dependencies are resolved but before dtpl template is rendered
+            * afterRender - fires when template is rendered but before we show it
+            * onReady - everything is done
+         */
+
+        config.callbacks.preData.push(function() {
+            // clear out the container (its filled for SEO/legacy purposes)
+            document.getElementById(disqus_container_id).innerHTML = '';
+        });
+                config.callbacks.onReady.push(function() {
+            // sync comments in the background so we don't block the page
+            DISQUS.request.get('?cf_action=sync_comments&post_id=1');
+        });
+                    };
+    var facebookXdReceiverPath = 'http://static/wordpress/wp-content/plugins/disqus-comment-system/xd_receiver.htm';
+/* ]]> */
+</script>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+    var DsqLocal = {
+        'trackbacks': [
+        ],
+        'trackback_url': "http:\/\/static\/wordpress\/2011\/10\/22\/hello-world\/trackback\/"    };
+/* ]]> */
+</script>
+
+<script type="text/javascript">
+/* <![CDATA[ */
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = 'http://' + disqus_shortname + '.' + disqus_domain + '/embed.js?pname=wordpress&pver=2.67';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+/* ]]> */
+</script>
 	</div>		
 </div>
 
