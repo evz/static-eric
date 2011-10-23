@@ -194,12 +194,15 @@ pre {
 .error {text-align: center;}
 
 /* headers */
+h1, h2 {
+    font-family: ff-enzo-web,sans-serif;
+}
 
 #blog-title {
-        font-weight: 700;
+    font-weight: 700;
 	font-size: 2em;
 	margin: 0;
-	padding: 0 15px;
+	padding: 5px 15px;
 	display: inline;
 	vertical-align: middle;
 	background-color: black;
@@ -238,7 +241,10 @@ pre {
 
 /* Sidebar Items */
 
-#left-col {text-align: right;}
+#left-col {
+    text-align: right;
+    font-family: ff-enzo-web,sans-serif;
+}
 
 .menu-item,
 .page_item
@@ -426,7 +432,7 @@ body {margin: 0; padding: 0;}
 
 .breadcrumb {
 	width: 400px;
-	margin: 3px 0 5px 0;
+	margin: 10px 0 5px 0;
 	padding: 0;
 }
 
