@@ -4,5 +4,5 @@ handlers:
   upload: '.*'
 - url: '/'
   static_dir: '/'
-- url: /.* 
-  script: main.py
+- url: '/.*' 
+  script: 'main.py'
