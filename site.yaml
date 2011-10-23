@@ -4,6 +4,5 @@ handlers:
   upload: '.*'
 - url: '/'
   static_dir: '/'
-- url: '/(.*)/(.*)/(.*)/(.*)/'
-  static_files: '/\1/\2/\3/\4/index\.html'
-  upload: '/(.*)/(.*)/(.*)/(.*)/'
+- url: /.* 
+  script: main.py
