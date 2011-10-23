@@ -1,9 +1,3 @@
 handlers:
 - url: '/'
-  static_files: 'index.html'
-  upload: '.*'
-- url: '/'
-  static_dir: '/'
-- url: '/(.*)/(.*)/(.*)/'
-  static_files: '/\1/\2/\3/index\.html'
-  upload: '/(.*)/(.*)/(.*)/'
+  script: rewrite.py
