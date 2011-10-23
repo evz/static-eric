@@ -1,9 +1,9 @@
 handlers:
+- url: /2011/10/22/gonna-add-another-post-here-real-quick/
+  static_files: 2011/10/22/gonna-add-another-post-here-real-quick/index.html
+  upload: 2011/10/22/gonna-add-another-post-here-real-quick/index\.html
 - url: '/'
   static_files: 'index.html'
   upload: '.*'
 - url: '/'
   static_dir: '/'
-- url: /2011/10/22/gonna-add-another-post-here-real-quick/
-  static_files: 2011/10/22/gonna-add-another-post-here-real-quick/index.html
-  upload: 2011/10/22/gonna-add-another-post-here-real-quick/index\.html
