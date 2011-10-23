@@ -2,6 +2,15 @@ handlers:
 - url: /(.*)/(.*)/(.*)/(.*)/
   static_files: \1/\2/\3/\4/index.html
   upload: .*/.*/.*/.*/index\.html
+- url: /(.*)/(.*)/(.*)/
+  static_files: \1/\2/\3/index.html
+  upload: .*/.*/.*/index\.html
+- url: /(.*)/(.*)/
+  static_files: \1/\2/index.html
+  upload: .*/.*/index\.html
+- url: /(.*)/
+  static_files: \1/index.html
+  upload: .*/index\.html
 - url: '/'
   static_files: 'index.html'
   upload: '.*'
