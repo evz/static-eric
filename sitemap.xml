@@ -2,7 +2,7 @@
 <!-- sitemap-generator-url="http://www.arnebrachhold.de" sitemap-generator-version="3.2.6" -->
 <!-- generated-on="October 23, 2011 10:39 pm" -->
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">	<url>
-		<loc>http://static/wordpress/</loc>
+		<loc>http://www.static-eric.com/wordpress/</loc>
 		<lastmod>2011-10-23T18:26:59+00:00</lastmod>
 		<changefreq>daily</changefreq>
 		<priority>1.0</priority>
