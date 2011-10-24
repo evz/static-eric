@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Eric van Zanten - Statically</title>
+	<atom:link href="http://www.static-eric.com/feed/" rel="self" type="application/rss+xml" />
+	<link>http://static/wordpress</link>
+	<description></description>
+	<lastBuildDate>Mon, 24 Oct 2011 13:16:10 +0000</lastBuildDate>
+	<language>en</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>http://wordpress.org/?v=3.2.1</generator>
+		<item>
+		<title>2010 Census: Getting setup</title>
+		<link>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/</link>
+		<comments>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/#comments</comments>
+		<pubDate>Mon, 24 Oct 2011 13:09:06 +0000</pubDate>
+		<dc:creator>Eric</dc:creator>
+				<category><![CDATA[Code]]></category>
+		<category><![CDATA[How-Tos]]></category>
+		<category><![CDATA[Census]]></category>
+		<category><![CDATA[Setup]]></category>
+
+		<guid isPermaLink="false">http://www.static-eric.com/?p=39</guid>
+		<description><![CDATA[After attending this meetup last week, I was pretty excited to get going on hacking census data for my own purposes. I had the day off on Thursday so I spent most of the day trying to get the census.ire.org source code running in a local VM. Despite being one of those guys that&#8217;s pretty ... <a href="http://www.static-eric.com/2011/10/24/2010-census-getting-setup/">Continue Reading</a>]]></description>
+			<content:encoded><![CDATA[<p>After attending <a title="Hacks/Hackers October Meetup" href="http://meetupchicago.hackshackers.com/events/36413602/?eventId=36413602&amp;action=detail" target="_blank">this meetup</a> last week, I was pretty excited to get going on hacking census data for <a title="2010 Census: Leveraging what’s already been done" href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/" target="_blank">my own purposes</a>. I had the day off on Thursday so I spent most of the day trying to get the <a title="census.ire.org" href="http://census.ire.org/" target="_blank">census.ire.org</a> source <a title="census.ire.org on github" href="https://github.com/ireapps/census" target="_blank">code</a> running in a local VM. Despite being one of those guys that&#8217;s pretty good at following directions, I did run into a few problems (but, then again, I&#8217;m not much of a sysadmin). In the spirit of maybe making someone&#8217;s life easier, here&#8217;s how I got the project going in a Ubuntu 11.04 <a title="Vagrant" href="http://vagrantup.com/" target="_blank">vagrant VM</a>.</p>
+<p><strong>First, a minor divergence</strong></p>
+<p>The docs over in the <a title="census.ire.org on github" href="https://github.com/ireapps/census" target="_blank">github repo</a> follow standard Python development practices by first setting up a virtualenv into which all the code libraries for the project get installed thereby making it easy to compartmentalize what you&#8217;re doing in one project from another. Try as I might, I was unable to make this work (I posted <a title="#137: GDAL python bindings not liking virtualenv" href="https://github.com/ireapps/census/issues/137" target="_blank">an issue</a> in the repo, for those interested). There&#8217;s probably an easy answer out there somewhere but I, for one, was unable to find it. Since I was already setting this up in it&#8217;s own VM, I figured that made it compartmentalized enough for me so I went ahead and installed everything globally just so I could get the project up and running. So, without further ado, here&#8217;s the short version of how I setup my VM</p>
+<pre class="brush: bash; title: ; notranslate">
+
+apt-get install git-core
+apt-get install python-software-properties
+add-apt-repository ppa:pitti/postgresql # PPA for PostgreSQL 9.0
+add-apt-repository ppa:ubuntugis/ubuntugis-unstable # PPA for current GIS libs
+apt-get update
+apt-get install libgdal1-dev libgeos-dev proj python-dev libpq-dev postgresql-server-dev-9.0 postgresql-contrib-9.0 python-gdal mongodb mdbtools
+apt-get install git-core
+git clone https://github.com/ireapps/census.git
+cd census/censusweb/
+vi requirements.txt # Comment out GDAL line
+pip install -r requirements.txt
+wget http://postgis.refractions.net/download/postgis-1.5.3.tar.gz
+tar -xvf postgis-1.5.3.tar.gz
+cd postgis-1.5.3/
+./configure
+make
+make install
+su - postgres # Switch to postgres superuser
+psql
+### Inside pgsql shell
+postgres=# create user censusweb with password 'Xy9XKembdu'; # Create new user to match the one in settings.py
+postgres=# \q
+### Back to bash
+psql -d postgres -c &quot;UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';&quot;
+psql -d template_postgis -f /usr/share/postgresql/9.0/contrib/postgis-1.5/postgis.sql
+psql -d template_postgis -f /usr/share/postgresql/9.0/contrib/postgis-1.5/spatial_ref_sys.sql
+psql -d template_postgis -c &quot;GRANT ALL ON geometry_columns TO PUBLIC;&quot;
+psql -d template_postgis -c &quot;GRANT ALL ON geography_columns TO PUBLIC;&quot;
+psql -d template_postgis -c &quot;GRANT ALL ON spatial_ref_sys TO PUBLIC;&quot;
+exit # Switch back to root
+python manage.py runserver
+</pre>
+<p><strong>What&#8217;s next?</strong></p>
+<p>For me, that&#8217;s more a strategy question that anything. I&#8217;ve <a title="2010 Census: Leveraging what’s already been done" href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/">written a bit</a> about my motivations and what I hope to get out of it. In the couple days since then, I think I&#8217;ve come up with a more specific approach which I&#8217;ll be writing about once I have it laid out end to end (and get a few particulars cleared up). So, uh, once again, stay tuned.</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>2010 Census: Leveraging what’s already been done</title>
+		<link>http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/</link>
+		<comments>http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/#comments</comments>
+		<pubDate>Sun, 23 Oct 2011 16:04:35 +0000</pubDate>
+		<dc:creator>Eric</dc:creator>
+				<category><![CDATA[Code]]></category>
+		<category><![CDATA[Baha'is]]></category>
+		<category><![CDATA[Census]]></category>
+		<category><![CDATA[Maps]]></category>
+
+		<guid isPermaLink="false">http://www.static-eric.com/?p=21</guid>
+		<description><![CDATA[Part of what I do at work is make maps. To me, the best maps are those that show you, at a glance, something interesting about what&#8217;s going on around you, and, if you&#8217;re curious, allow you to explore what&#8217;s going on in the rest of the world. I&#8217;ve been following what the TribApps team ... <a href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/">Continue Reading</a>]]></description>
+			<content:encoded><![CDATA[<p>Part of what I do at work is make maps. To me, the best maps are those that show you, at a glance, something interesting about what&#8217;s going on around you, and, if you&#8217;re curious, allow you to explore what&#8217;s going on in the rest of the world. I&#8217;ve been following what the <a title="News Apps Blog" href="http://blog.apps.chicagotribune.com/" target="_blank">TribApps</a> team has been doing with the 2010 census data as it has been coming out and after going to a recent <a title="Hacks/Hackers October Meetup" href="http://meetupchicago.hackshackers.com/events/36413602/?eventId=36413602&amp;action=detail" target="_blank">Hacks/Hackers Meetup</a> where <a title="Through the Wire" href="http://blog.germuska.com/" target="_blank">Joe Germuska</a> presented some of the APIs that they&#8217;ve been working on and I gotta say, I was inspired. Below are some preliminary steps and observations.</p>
+<p><strong>Custom boundaries, normalized data</strong></p>
+<p>During the day, I work for the <a title="Baha'is of the United States" href="http://www.bahai.us" target="_blank">Bahá&#8217;ís of the United States</a>. The administration of the affairs of the Bahá&#8217;ís across the country are organized based on geographic boundaries which we call, originally enough, Bahá&#8217;í Localities. The boundaries of these geographies sometimes match up with normal things like counties, townships or municipal boundaries but are more often that not combinations or subdivisions of those. The other complexity is that they combine together to form other types of administrative subdivisions which have nothing to do with any other existing shapes defined by people who have large warehouses full of geographers busily drawing lines on maps. The upshot of all this is that if you want to try to project something like census data onto these areas, it can get kinda tricky. Luckily, someone had the foresight to assign a <a title="Federal Information Processing Standard on Wikipedia" href="http://en.wikipedia.org/wiki/Federal_Information_Processing_Standard" target="_blank">FIPS</a> code to each of these areas so at least approximations can be made.</p>
+<p>Also luckily, someone (namely <a title="census.ire.org" href="http://census.ire.org/" target="_blank">these guys)</a> has already done a bunch of the dirty work when it comes to normalizing the data provided by the census as well as putting a <a title="census.ire.org - javascript api docs" href="http://census.ire.org/docs/javascript-library.html" target="_blank">JavaScript API</a> on it. For me, however, since I&#8217;m going to need to do a lot of custom combinations of that data, and to be quite honest I don&#8217;t really need <em>all</em> of it, I&#8217;m thinking I&#8217;m probably going to need to pull down the data that I need at put it into the Django models that house the rest of our geospatial data. That way I can preprocess a lot of it and have it ready when it&#8217;s needed.</p>
+<p><strong>Preliminary steps</strong></p>
+<p>So far all I&#8217;ve done is setup the <a title="census.ire.org on github" href="https://github.com/ireapps/census" target="_blank">Django project</a> powering census.ire.org and poked around with the API a bit. There are a ton of scripts within the project which do all kinds of wonderful things to get going with the mountain of data within the census. Since I&#8217;m mainly interested in grabbing this data and comparing it to what I&#8217;ve already got established with my larger mapping project, the first step is to actually make the models. I&#8217;ll try to keep this blog up to date with any pitfalls I encounter or brilliant discoveries I make. So, uh, if you&#8217;ve read this far, stay tuned.</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>OMG FREE HOSTING: An homage to Harper Reed</title>
+		<link>http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/</link>
+		<comments>http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/#comments</comments>
+		<pubDate>Sat, 22 Oct 2011 18:16:04 +0000</pubDate>
+		<dc:creator>Eric</dc:creator>
+				<category><![CDATA[Code]]></category>
+		<category><![CDATA[How-Tos]]></category>
+		<category><![CDATA[DryDrop]]></category>
+		<category><![CDATA[Google AppEngine]]></category>
+		<category><![CDATA[Static]]></category>
+		<category><![CDATA[Wordpress]]></category>
+
+		<guid isPermaLink="false">http://www.static-eric.com/?p=4</guid>
+		<description><![CDATA[Back in January, I read this and thought it was a pretty cool idea. For some reason, I just kinda filed it away and didn&#8217;t really think about it until sometime in the early morning hours of October 22 when I got the urge to write about this but didn&#8217;t really have anywhere to do ... <a href="http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/">Continue Reading</a>]]></description>
+			<content:encoded><![CDATA[<p>Back in January, I read <a title="OMG FREE HOSTING: How to use GAE to host static sites for free" href="http://www.nata2.org/2011/01/26/how-to-use-app-engine-to-host-static-sites-for-free/" target="_blank">this</a> and thought it was a pretty cool idea. For some reason, I just kinda filed it away and didn&#8217;t really think about it until sometime in the early morning hours of October 22 when I got the urge to write about <a title="2010 Census: Leveraging what’s already been done" href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/">this</a> but didn&#8217;t really have anywhere to do it. Add to that the fact that I my brain starts hurting when I start to see the long road of configuring and deploying a site, whatever the platform. I just wanted something that would kinda be there, look presentable out of the box, and not have anything to do with PHP. What I came up with looks a little like this:</p>
+<p>1) WordPress stack running locally on a <a title="Vagrant" href="http://vagrantup.com/" target="_blank">Vagrant VM</a> (OK, OK, so, there is a bit of PHP)</p>
+<p>2) <a title="Really static - WordPress Plugin Directory" href="http://wordpress.org/extend/plugins/really-static/" target="_blank">Really Static</a> WordPress plugin to render content as flat HTML</p>
+<p>3) A bit of symlink magic to get all the necessary static files from the theme and the flat HTML files into one directory</p>
+<p>4) A <a title="Eric on github" href="https://github.com/evz/static-eric" target="_blank">Github repo</a> where I push all the junk from above and a post-receive hook to sync it with AppEngine</p>
+<p>5) <a title="DryDrop: Update AppEngine site by pushing to Github" href="http://drydrop.binaryage.com/" target="_blank">DryDrop</a> to setup the Google AppEngine project</p>
+<p>In the end, it was pretty simple. Probably because I insist on only skimming the directions when setting these things up, I did run into a few pitfalls which I&#8217;ll share here.</p>
+<p><strong>AppEngine and DryDrop setup</strong></p>
+<p>When you actually get into it, AppEngine is pretty nifty. Breaking into it by trying to use it for something that it wasn&#8217;t really meant to do is not something I recommend unless you&#8217;re smarter than me (<a title="Zen of Python" href="http://www.python.org/dev/peps/pep-0020/" target="_blank">or Dutch,</a> apparently). It&#8217;s kinda like watching a movie from the other side of the screen, or something. After downloading DryDrop, it took me quite a while to figure out that it expected you to have the AppEngine SDK setup in the way that it gets setup when you install it on OS X. DryDrop looks for the SDK files in /usr/local and if you&#8217;re trying to make this work on something like Ubuntu, you either need to take that into account, or just get a Mac. Once you get over that, DryDrop works like a charm. Oh, and, it seems that if you want to use a custom domain with your AppEngine account, you&#8217;ve got to set it up on Google Apps, which is also free, but it&#8217;s yet another hassle.</p>
+<p>The other big, big thing that I ran into was the way that AppEngine is very literal when it comes to static content. The way that the Really Static plugin spits out content is the way that you&#8217;d expect it to if you were going to be hosting it on a box using Apache or something. So, to fake the pretty URLs, it makes a folder with an index.html file inside (which something like Apache would use by default when serving that URL). AppEngine is not Apache. What I finally came up with was to put this into the DryDrop site.yaml (which is kind of a slimmed down version of the normal app.yaml that AppEngine normally uses).</p>
+<pre class="brush: xml; title: ; notranslate">handlers:
+- url: /(.*)/(.*)/(.*)/(.*)/
+static_files: \1/\2/\3/\4/index.html
+upload: .*/.*/.*/.*/index\.html
+- url: /(.*)/(.*)/(.*)/
+static_files: \1/\2/\3/index.html
+upload: .*/.*/.*/index\.html
+- url: /(.*)/(.*)/
+static_files: \1/\2/index.html
+upload: .*/.*/index\.html
+- url: /(.*)/
+static_files: \1/index.html
+upload: .*/index\.html
+- url: '/'
+static_files: 'index.html'
+upload: '.*'
+- url: '/'
+static_dir: '/'</pre>
+<p>It&#8217;s kinda hacky, but it works. It basically uses the regexes to find the appropriate index.html files so that I can keep my pretty URLs.</p>
+<p><strong>WordPress</strong></p>
+<p>I struggle with Apache. I&#8217;m allergic to PHP. But my fear/loathing of fiddling with UI stuff for my own personal outweighs that so I went and grabbed <a title="XAMPP" href="http://www.apachefriends.org/en/xampp.html" target="_blank">XAMPP</a> and segregated my WordPress installation onto it&#8217;s own little VM. That way if I get really pissed off and just can&#8217;t take it anymore, I can do</p>
+<pre class="brush: bash; light: true; title: ; notranslate">vagrant destroy</pre>
+<p>and then it will know who&#8217;s boss. I tried a bunch of different ways of getting flat HTML out of WordPress but the Really Static plugin was by far the best. It&#8217;s one of those things that just kinda works. For those of you out there that are looking to make WordPress really, really fast by static-ifying it, this plugin not only creates the flat files for you, but will change the links to use a different domain and upload them to a remote server all when ever the database is changed. So, uh, I&#8217;m not sure why anyone would put up with hosting a WordPress site anymore. Oh, there is that one thing:</p>
+<p><strong>Search</strong></p>
+<p>This is the one thing I have yet to figure out. I&#8217;m looking at using <a title="Tapir search" href="http://tapirgo.com/" target="_blank">Tapir</a>, but that involves building an RSS feed which is possible for a flat site but I&#8217;ll need to figure out a way to put this into my workflow so that it isn&#8217;t a pain in the ass. In the meantime, I&#8217;m not too worried about it cause there&#8217;s only like 2 posts and a page. So, you&#8217;re on your own there.</p>
+<p>I suppose this is just the beginning. I&#8217;m hoping this is a sustainable solution and Google doesn&#8217;t catch on and start charging me cause it&#8217;s pretty slick.</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+	</channel>
+</rss>
