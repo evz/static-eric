@@ -13,11 +13,103 @@
 	<atom:link href="http://www.static-eric.com/feed/" rel="self" type="application/rss+xml" />
 	<link>http://www.static-eric.com</link>
 	<description></description>
-	<lastBuildDate>Mon, 24 Oct 2011 13:16:10 +0000</lastBuildDate>
+	<lastBuildDate>Thu, 27 Oct 2011 15:24:06 +0000</lastBuildDate>
 	<language>en</language>
 	<sy:updatePeriod>hourly</sy:updatePeriod>
 	<sy:updateFrequency>1</sy:updateFrequency>
 	<generator>http://wordpress.org/?v=3.2.1</generator>
+		<item>
+		<title>Making search possible on a static site</title>
+		<link>http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/</link>
+		<comments>http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/#comments</comments>
+		<pubDate>Thu, 27 Oct 2011 15:13:41 +0000</pubDate>
+		<dc:creator>Eric</dc:creator>
+				<category><![CDATA[Uncategorized]]></category>
+
+		<guid isPermaLink="false">http://www.static-eric.com/?p=45</guid>
+		<description><![CDATA[One of the challenges I identified early one when setting up this site was that it was going to be a bit tricky to get some kind of search tool working for it. When I Googled it, I was pretty excited to find this tool but when I sat down yesterday to implement it, it ... <a href="http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/">Continue Reading</a>]]></description>
+			<content:encoded><![CDATA[<p>One of the challenges I identified early one when <a title="OMG FREE HOSTING: An homage to Harper Reed" href="http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/" target="_blank">setting up this site</a> was that it was going to be a bit tricky to get some kind of search tool working for it. When I Googled it, I was pretty excited to find <a title="Tapir search" href="http://tapirgo.com/" target="_blank">this tool</a> but when I sat down yesterday to implement it, it was broke. And by broke, I mean it wasn&#8217;t returning any results and the developers weren&#8217;t responding to any attempts at communications. So, I figured, if they can parse my RSS feed and turn it into something that returns search results, so can I. What follows is how I managed to get that going.</p>
+<p><strong>AppEngine, again</strong></p>
+<p>It seems like recently I&#8217;ve found quite a few uses for AppEngine. And this is without even really having it on my radar before last week. Besides serving this site from it, a coworker and I put together a little email handler for a <a title="Wufoo" href="http://wufoo.com" target="_blank">Wufoo</a> form on AppEngine earlier this week. So, when my dream of making this site only rely on external web services for interactivity fell apart at some point yesterday, I guess it seemed like a natural fit.</p>
+<p>Really, all that the search widget over there in the right sidebar does is do a jQuery <code>$.getJson</code> call to the AppEngine app which grabs my <a title="Static Eric RSS Feed" href="http://feeds.feedburner.com/static-eric" target="_blank">RSS feed</a> from Feedburner, parses it, looks for the query string in the content of the feed, and then returns a JSONP reponse. Here&#8217;s what that looks like on the AppEngine side:</p>
+<pre class="brush: python; title: ; notranslate">
+
+#!/usr/bin/env python
+import logging
+import json
+import webapp2 as webapp
+from feedparser import parse
+
+class SearchSite(webapp.RequestHandler):
+def get(self):
+q = self.request.get('query', '')
+cb = self.request.get('callback', '')
+tree = parse('http://feeds.feedburner.com/static-eric')
+d = {}
+resp = []
+for entry in tree['entries']:
+    if q.lower() in entry['content'][0]['value'].lower():
+        props = {}
+        props['title'] = entry['title']
+        props['updated'] = entry['updated']
+        props['summary'] = entry['summary']
+        props['link'] = entry['links'][0]['href']
+        resp.append(props)
+        d['status'] = 'ok'
+    else:
+        d['status'] = 'no_results'
+    d['resp'] = resp
+    d = json.dumps(d)
+    d = &quot;%s(%s)&quot; % (cb,str(d))
+    self.response.out.write(d)
+
+app = webapp.WSGIApplication([('/', SearchSite)], debug=True)
+</pre>
+<p>Since the client is calling a Cross Domain resource here, the response needs to be a JSONP response in order for jQuery to be cool with it (hence wrapping the json in the callback there). The other really, really cool thing I found was <a title="Feedparser on Google Code" href="http://code.google.com/p/feedparser/" target="_blank">Feedparser. </a>The project is very mature but, unfortunately, the docs were on a domain that was owned by <a title="Mark Pilgrim on Wikipedia" href="http://en.wikipedia.org/wiki/Mark_Pilgrim_%28software_developer%29" target="_blank">Mark Pilgrim</a> (he was a heavy contributor to the project, apparently) so when he performed his recent info-suicide, that domain went with him. They&#8217;re putting docs up onto PyPi soon (at least that&#8217;s what the chatter in their forums is saying)</p>
+<p>Anyways, it&#8217;s pretty easy to use. Import the module, give it a URL (or a sting with XML in it) and whammo, you&#8217;ve got a Python dictionary with all the stuff from the feed in it. Since the docs are temporarily gone, I can&#8217;t really say what other types of feeds or XML formats it accepts but it worked for the one that I&#8217;m generating from WordPress.</p>
+<p>One other thing about that code that you&#8217;ll notice is that instead of doing the normal <code>from google.appengine.ext import webapp</code> I&#8217;m doing <code>import webapp2 as webapp</code> and I&#8217;m also able to do <code>import json</code> even though AppEngine is still on Python 2.5. This is because in my app.yaml, I told it to use Python 2.7:</p>
+<pre class="brush: xml; title: ; notranslate">
+application: static-eric-search
+version: 1
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+
+- url: .*
+  script: main.app
+</pre>
+<p>On the client-side, I&#8217;m just taking the response and sticking it over in a div underneath the search form:</p>
+<pre class="brush: jscript; title: ; notranslate">
+
+(function($){
+    $('#searchsubmit').live('click', function(){
+        $('.result').remove();
+        $.getJSON('http://static-eric-search.appspot.com/?query='+$(this).prev().val()+'&amp;callback=?', function(data){
+            var info = '';
+            if (data['status'] == 'ok'){
+                $.each(data['resp'], function(key,val){
+                    info += '&lt;div&gt;&lt;h4&gt;&lt;a href=&quot;#&quot;&gt;' + val['title'] + '&lt;/a&gt;&lt;/h4&gt;';
+                    info += '&lt;p&gt;&lt;em&gt;Updated: ' + val['updated'] + '&lt;/em&gt;&lt;/p&gt;';
+                    info += '&lt;div style=&quot;display:none;&quot;&gt;&lt;p&gt;' + val['summary'] + '&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;'
+                });
+            } else {
+                info += '&lt;div class&quot;result&quot;&gt;&lt;h4&gt;Your search found nothing. Try again&lt;/h4&gt;&lt;/div&gt;';
+            }
+            $('#search-results').append(info);
+        });
+    });
+    $('.result h4 a').live('click', function(){
+    $(this).parent().parent().find('.result-summary').toggle('blind');
+});
+})(jQuery);
+</pre>
+<p>So, I guess that&#8217;s pretty much it. That&#8217;s how you get get search working on a static site. It would be really cool to see <a title="Tapir search" href="http://tapirgo.com/" target="_blank">these guys</a> get their act together but, I guess it was kinda fun to do it on my own as well.</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
 		<item>
 		<title>2010 Census: Getting setup</title>
 		<link>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/</link>

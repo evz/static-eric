@@ -13,6 +13,33 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 */
 
+/* Search results*/
+#search-results {
+    text-align: left;
+    padding-left: 10px !important;
+}
+#search-results h4 {
+    font-size: 14px;
+    margin: 5px 0 0 0;
+}
+
+#search-results p em {
+    font-size: 10px;
+    font-weight: 700;
+}
+
+#search-results p {
+    font-size: 11px;
+    font-weight: 600;
+}
+#search-results .result-summary {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+#search-results .result {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #000;
+}
 /* 
 
 Color Scheme - colors, borders & their colors
@@ -168,7 +195,7 @@ body {font-size: 1em; font-family: "Palatino Linotype", "Book Antiqua", "Palatin
 
 input,
 textarea
-{font-size: 1em; font-family: "Palatino Linotype", "Book Antiqua", "Palatino", serif;}
+{font-size: 1em;}
 
 small, #footer
 {font-size: .625em;}
@@ -331,12 +358,10 @@ h1, h2 {
 
 #searchform {
 	font-size: .8em;
-	font-family: "Palatino Linotype", "Book Antiqua", "Palatino", serif;
 }
 
 .error404 select {
 	font-size: .8em;
-	font-family: "Palatino Linotype", "Book Antiqua", "Palatino", serif;
 }
 	
 .error #searchform {font-size: 1.5em;}
