@@ -72,7 +72,7 @@ OMG FREE HOSTING: An homage to Harper Reed   | Eric van Zanten &#8211; Staticall
 
 		<div id="sidebar">
         	<div id="feed-container">
-        		<p><a href="http://www.static-eric.com/feed/" id="feed_link">Subscribe to the RSS Feed</a></p>
+        		<p><a href="http://feeds.feedburner.com/static-eric" id="feed_link">Subscribe to the RSS Feed</a></p>
         	</div>
 
 						
@@ -92,6 +92,13 @@ OMG FREE HOSTING: An homage to Harper Reed   | Eric van Zanten &#8211; Staticall
 </li>
 				</ul>
 			</div>
+			<div class="widget static-widget">
+				<h3 class="widgettitle">Search</h3>
+                <form id="searchform">
+                <div><input type="text" name="s" id="s" /><input type="button" id="searchsubmit" value="Search" /></div>
+                </form>
+			</div>
+			<div id="search-results"></div>
 				</div>
 	</div>
 
@@ -253,5 +260,6 @@ static_dir: '/'</pre>
 	SyntaxHighlighter.defaults['toolbar'] = false;
 	SyntaxHighlighter.all();
 </script>
+<script type="text/javascript" src="http://www.static-eric.com/wp-content/themes/tabula-rosa/js/search.js"></script>
 </body>
 </html>

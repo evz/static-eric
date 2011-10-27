@@ -22,6 +22,7 @@
 <link rel='index' title='Eric van Zanten &#8211; Statically' href='http://www.static-eric.com/' />
 <link rel='start' title='OMG FREE HOSTING: An homage to Harper Reed' href='http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/' />
 <link rel='prev' title='2010 Census: Leveraging what’s already been done' href='http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/' />
+<link rel='next' title='Making search possible on a static site' href='http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/' />
 <meta name="generator" content="WordPress 3.2.1 - Realstatic 0.31" />
 <link rel='canonical' href='http://www.static-eric.com/2011/10/24/2010-census-getting-setup/' />
 <link rel='shortlink' href='http://www.static-eric.com/?p=39/' />
@@ -72,7 +73,7 @@
 
 		<div id="sidebar">
         	<div id="feed-container">
-        		<p><a href="http://www.static-eric.com/feed/" id="feed_link">Subscribe to the RSS Feed</a></p>
+        		<p><a href="http://feeds.feedburner.com/static-eric" id="feed_link">Subscribe to the RSS Feed</a></p>
         	</div>
 
 						
@@ -92,6 +93,13 @@
 </li>
 				</ul>
 			</div>
+			<div class="widget static-widget">
+				<h3 class="widgettitle">Search</h3>
+                <form id="searchform">
+                <div><input type="text" name="s" id="s" /><input type="button" id="searchsubmit" value="Search" /></div>
+                </form>
+			</div>
+			<div id="search-results"></div>
 				</div>
 	</div>
 
@@ -255,5 +263,6 @@ python manage.py runserver
 	SyntaxHighlighter.defaults['toolbar'] = false;
 	SyntaxHighlighter.all();
 </script>
+<script type="text/javascript" src="http://www.static-eric.com/wp-content/themes/tabula-rosa/js/search.js"></script>
 </body>
 </html>
