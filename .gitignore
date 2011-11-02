@@ -1,3 +1,6 @@
 drydrop/*
 .DS_Store
 *.php
+wp-content/plugins/
+static_eric_search/
+deploy.sh

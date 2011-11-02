@@ -1,48 +1,122 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0"
-	xmlns:content="http://purl.org/rss/1.0/modules/content/"
-	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
-	xmlns:dc="http://purl.org/dc/elements/1.1/"
-	xmlns:atom="http://www.w3.org/2005/Atom"
-	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
-	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
-	>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
 
-<channel>
-	<title>Eric van Zanten - Statically</title>
-	<atom:link href="http://www.static-eric.com/feed/" rel="self" type="application/rss+xml" />
-	<link>http://www.static-eric.com</link>
-	<description></description>
-	<lastBuildDate>Wed, 02 Nov 2011 13:29:31 +0000</lastBuildDate>
-	<language>en</language>
-	<sy:updatePeriod>hourly</sy:updatePeriod>
-	<sy:updateFrequency>1</sy:updateFrequency>
-	<generator>http://wordpress.org/?v=3.2.1</generator>
-		<item>
-		<title>Mapping tools 101: A few things I&#8217;ve picked up</title>
-		<link>http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/</link>
-		<comments>http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/#comments</comments>
-		<pubDate>Sat, 29 Oct 2011 17:36:39 +0000</pubDate>
-		<dc:creator>Eric</dc:creator>
-				<category><![CDATA[Code]]></category>
-		<category><![CDATA[How-Tos]]></category>
-		<category><![CDATA[Maps]]></category>
-		<category><![CDATA[Census]]></category>
-		<category><![CDATA[Javascript]]></category>
-		<category><![CDATA[Leaflet]]></category>
-		<category><![CDATA[Python]]></category>
-		<category><![CDATA[TileMill]]></category>
-		<category><![CDATA[TileStache]]></category>
+<head profile="http://gmpg.org/xfn/11">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>
 
-		<guid isPermaLink="false">http://www.static-eric.com/?p=58</guid>
-		<description><![CDATA[My introduction to Python, and Django in particular, was a week-long project to setup, from scratch, a basic, working GeoDjango project. Thanks to some really stellar documentation, which has actually improved quite a bit since back in the day (like, a year and a half ago or whatever), I was able to do it. But, quite frankly, ... <a href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/">Continue Reading</a>]]></description>
-			<content:encoded><![CDATA[<p>My introduction to Python, and Django in particular, was a week-long project to setup, from scratch, a basic, working GeoDjango project. Thanks to some really <a title="GeoDjango" href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/" target="_blank">stellar documentation</a>, which has actually improved quite a bit since back in the day (like, a year and a half ago or whatever), I was able to do it. But, quite frankly, that was only the beginning. When I showed off my little application around the office, it ended up being a full fledged project, which I&#8217;m still tweaking to this day. This is an attempt to unravel some of what I&#8217;ve picked up during that time, especially given all of the recent developments in the web based mapping sphere. This is by no means a comprehensive overview, but rather just a guy sharing how he does what he does.</p>
+Mapping tools 101: A few things I&#8217;ve picked up   | Eric van Zanten &#8211; Statically</title>
+
+<link rel="stylesheet" href="http://www.static-eric.com/wp-content/themes/tabula-rosa/style.css" type="text/css" media="screen" />
+
+
+<link rel="alternate" type="application/rss+xml" title="Eric van Zanten - Statically &raquo; Feed" href="http://www.static-eric.com/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Eric van Zanten - Statically &raquo; Comments Feed" href="http://www.static-eric.com/comments/feed/" />
+<link rel="alternate" type="application/rss+xml" title="Eric van Zanten - Statically &raquo; Mapping tools 101: A few things I&#8217;ve picked up Comments Feed" href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/feed/" />
+<link rel='stylesheet' id='fancybox_css-css'  href='http://www.static-eric.com/wp-content/themes/tabula-rosa/js/fancybox/jquery.fancybox-1.3.4.css?ver=3.2.1' type='text/css' media='screen' />
+<script type='text/javascript' src='http://www.static-eric.com/wp-includes/js/l10n.js?ver=20101110'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-includes/js/jquery/jquery.js?ver=1.6.1'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-includes/js/comment-reply.js?ver=20090102'></script>
+
+ 
+<link rel='index' title='Eric van Zanten &#8211; Statically' href='http://www.static-eric.com/' />
+<link rel='start' title='OMG FREE HOSTING: An homage to Harper Reed' href='http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/' />
+<link rel='prev' title='Making search possible on a static site' href='http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/' />
+<meta name="generator" content="WordPress 3.2.1 - Realstatic 0.31" />
+<link rel='canonical' href='http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/' />
+<link rel='shortlink' href='http://www.static-eric.com/?p=58/' />
+	<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
+<meta id="syntaxhighlighteranchor" name="syntaxhighlighter-version" content="3.1.3" />
+
+<!-- BEGIN Typekit Fonts for WordPress -->
+<script type="text/javascript" src="http://use.typekit.com/sok4ukf.js"></script>
+<script type="text/javascript">try{Typekit.load();}catch(e){}</script><!-- END Typekit Fonts for WordPress -->
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-26502031-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+</head>
+<body class="single single-post postid-58 single-format-standard">
+		
+	<div id="header">
+		<div id="header-wrapper">
+		<h1 id="blog-title"><a href="http://www.static-eric.com/" title="Home">Eric van Zanten &#8211; Statically</a></h1>       
+        <h2 id="blog-description"></h2>
+        
+        <!-- Design Note: Add breadcrumbs here at the end of this logic -->
+        			<h2 class="breadcrumb"><a href="http://www.static-eric.com/">Home</a> - 
+									<a href="http://www.static-eric.com/category/code/" title="Code">Code</a> - <a href="http://www.static-eric.com/category/how-tos/" title="How-Tos">How-Tos</a> - <a href="http://www.static-eric.com/category/maps/" title="Maps">Maps</a> - Mapping tools 101: A few things I&#8217;ve picked up				</h2>
+					</h2>
+		</div>
+	</div>
+
+<div id="wrapper">
+	<div id="left-col">
+			<div id="menu">
+		<ul>
+						<li class="page_item"><a href="http://www.static-eric.com/">Home</a></li>
+						<li class="page_item page-item-10"><a href="http://www.static-eric.com/about-this-site/" title="About this site">About this site</a></li>
+		</ul>
+	</div>
+
+
+		<div id="sidebar">
+        	<div id="feed-container">
+        		<p><a href="http://feeds.feedburner.com/static-eric" id="feed_link">Subscribe to the RSS Feed</a></p>
+        	</div>
+
+						
+			<div class="widget static-widget">
+				<h3 class="widgettitle">Archives</h3>
+				<ul>
+						<li><a href='http://www.static-eric.com/2011/10/' title='October 2011'>October 2011</a></li>
+				</ul>
+			</div>
+			
+			<div class="widget static-widget">
+				<h3 class="widgettitle">Categories</h3>
+				<ul>
+						<li class="cat-item cat-item-3"><a href="http://www.static-eric.com/category/code/" title="View all posts filed under Code">Code</a>
+</li>
+	<li class="cat-item cat-item-4"><a href="http://www.static-eric.com/category/how-tos/" title="View all posts filed under How-Tos">How-Tos</a>
+</li>
+	<li class="cat-item cat-item-10"><a href="http://www.static-eric.com/category/maps/" title="View all posts filed under Maps">Maps</a>
+</li>
+				</ul>
+			</div>
+			<div class="widget static-widget">
+				<h3 class="widgettitle">Search</h3>
+                <form id="searchform">
+                <div><input type="text" name="s" id="s" /><input type="button" id="searchsubmit" value="Search" /></div>
+                </form>
+			</div>
+			<div id="search-results"></div>
+				</div>
+	</div>
+
+	<div id="right-col">
+					<div id="post-58" class="post-58 post type-post status-publish format-standard hentry category-code category-how-tos category-maps tag-census tag-javascript tag-leaflet tag-maps tag-python tag-tilemill tag-tilestache">
+						<h1 class="posttitle">Mapping tools 101: A few things I&#8217;ve picked up</h1>
+			<div class="post-author">written by: Eric</div>
+	
+			<div class="entry">
+				<p>My introduction to Python, and Django in particular, was a week-long project to setup, from scratch, a basic, working GeoDjango project. Thanks to some really <a title="GeoDjango" href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/" target="_blank">stellar documentation</a>, which has actually improved quite a bit since back in the day (like, a year and a half ago or whatever), I was able to do it. But, quite frankly, that was only the beginning. When I showed off my little application around the office, it ended up being a full fledged project, which I&#8217;m still tweaking to this day. This is an attempt to unravel some of what I&#8217;ve picked up during that time, especially given all of the recent developments in the web based mapping sphere. This is by no means a comprehensive overview, but rather just a guy sharing how he does what he does.</p>
 <p><strong>Map theory</strong></p>
 <p>Web based maps exist in a browser as layers. You&#8217;ve usually got a street map layer that you can get from someplace like Google or, in my case, <a title="Cloudmade" href="http://cloudmade.com" target="_blank">Cloudmade</a>. This is pretty crucial as it gives the whole thing context. Street map tiles are generally built by rasterizing <a title="Open Street Map" href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> data with varying degrees of detail for different zoom levels (so, for instance, you don&#8217;t see the alley that goes behind your apartment building until you zoom all the way in). Those images are chopped up into little squares and stuck on a server somewhere. On top of the street maps is generally where you&#8217;ll put your data, either in the form of polygons or rasterized tiles (just like the street maps but maybe a bit more transparent so you can see the street maps). These layers get stitched together with a bit of intelligent client-side Javascript which, on the one side, grabs the street maps, and on the other side loads data from your application (either in the form of raw data or more tiles). I&#8217;ll get more into the particulars of how that works in a bit, I just wanted to set the stage a bit so the next few sections have a bit of context.</p>
 <p>Instead of showing you a relatively complex (and not fully implemented) project, I&#8217;ll go ahead and demonstrate a few things by building a rather silly application using some freely available <a title="Download Census shapefiles" href="http://www.census.gov/cgi-bin/geo/shapefiles2010/main" target="_blank">census boundary data</a>. If you&#8217;d like to follow along, once I had the <a title="Install GeoDjango" href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/install/" target="_blank">basic GeoDjango stack</a> up and running, I downloaded California county boundaries and California census place boundaries and put them into <a title="Demo Models Gist" href="https://gist.github.com/1324843" target="_blank">these models</a>. To make that simpler, I used <a title="Load Data script Gist" href="https://gist.github.com/1324841" target="_blank">this script</a> (based on the one from the <a title="GeoDjango Tutorial" href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/tutorial/" target="_blank">GeoDjango tutorial</a>). I&#8217;ve also placed all the code that I put together for this demo in a <a title="evz/demo on Github" href="https://github.com/evz/demo" target="_blank">Github repo</a>.</p>
 <p><strong>Getting some basic data on the map</strong></p>
 <p>Within the context of the GeoDjango application we&#8217;re building, the interaction between the server and client, in it&#8217;s most basic form, can look something like this. First, the Django app&#8217;s urls.py:</p>
-<pre class="brush: python; title: ; notranslate">
+<pre class="brush: python; title: ; notranslate" title="">
 from django.conf.urls.defaults import *
 
 from california.views import *
@@ -53,7 +127,7 @@ urlpatterns = patterns('',
 )
 </pre>
 <p>Next, the views:</p>
-<pre class="brush: python; title: ; notranslate">
+<pre class="brush: python; title: ; notranslate" title="">
 from django.shortcuts import render_to_response
 from california.models import *
 
@@ -66,7 +140,7 @@ def places(request):
     return render_to_response('basic-place.html', {'places': places}, context_instance=RequestContext(request))
 </pre>
 <p>Now, the meaty parts: the client-side Javascript. As I mentioned above, this is where all the stitching happens. For this example, I&#8217;m going to use some built in Django template tags and the <a title="OpenLayers" href="http://openlayers.org">OpenLayers</a> Javascript API to get the shapes where I want them with a bit of metadata attached. The snippet below shows you the javascript code from the template that&#8217;s doing most of the work. It&#8217;s inheriting from a template that puts a <code>div</code> with the ID of &#8220;map&#8221; on the page and also loads all the necessary external Javascript libraries. The same sort of approach would work for either of the views detailed above.</p>
-<pre class="brush: jscript; title: ; notranslate">
+<pre class="brush: jscript; title: ; notranslate" title="">
 var map, vector, wkt, features, options, geom;
 var collect = [];
 var f = [];
@@ -108,7 +182,7 @@ window.onload = function(){
 <p><strong>Adding Leaflet and a bit more complexity</strong></p>
 <p><strong></strong>So, wow, you can load some county shapes on a map. Big deal. My kid can do that. What we want is something that is more interactive, and will maybe even load stuff dynamically as a user requests it. Wouldn&#8217;t that be cool? Not only is this slightly easier to do with Leaflet (as opposed to OpenLayers), it&#8217;s also going to give us an opportunity to flex a few GeoJSON muscles.</p>
 <p>First, let&#8217;s build a Django view:</p>
-<pre class="brush: python; title: ; notranslate">
+<pre class="brush: python; title: ; notranslate" title="">
 def complex_counties(request):
     counties = County.objects.all()
     bbox = json.dumps(counties.extent())
@@ -128,7 +202,7 @@ def complex_counties(request):
 <p>The GeoJSON spec provides for a place to put information about the geometry called, predictably enough, &#8220;properties&#8221;. The GeoJSON that is produced by GeoDjango doesn&#8217;t include that but, since it&#8217;s pretty simple to just turn it into a Python dictionary by using the json module, you can add that in there manually and put whatever you want in there. The reasons for this become apparent when parsing this out on the client-side.</p>
 <p>The other thing to point out before moving on to the client side is that you can also quickly access the bounding box of any QuerySet by using the .extent() method. The one screwy thing about that is that the points are reversed. So, it&#8217;s longitude, latitude instead of latitude, longitude (which is what Leaflet will want on the client-side). I chose to take care of that over there (instead of in the Python code) just because I find it to be a bit cleaner and easier.</p>
 <p>Here&#8217;s the client-side code:</p>
-<pre class="brush: jscript; title: ; notranslate">
+<pre class="brush: jscript; title: ; notranslate" title="">
     var geojson, map;
     $(document).ready(function(){
         var spin_opts = {
@@ -194,7 +268,7 @@ def complex_counties(request):
 <p><strong>TileMill</strong></p>
 <p>By far the best application for working with map tiles is <a title="TileMill" href="http://mapbox.com/tilemill/" target="_blank">TileMill</a> which is an open source tool by MapBox for taking geospatial data and turning it into pretty map tiles. For the purposes of this demo, I&#8217;m not going to get too deep into the more advanced features but I encourage you to take a look. There are some pretty slick possibilities there.</p>
 <p>After you get it up and running and maybe kick the tires a bit to get familiar with what&#8217;s going on there, you can either point TileMill at the PostgreSQL database that you created for your GeoDjango project or you can just point it at the shapefiles that you used to load data into that database. I&#8217;m just gonna use the shapefiles because it&#8217;s a little quicker and cleaner. Before you do that, however, you need to prepare the shapefiles a bit so that TileMill will load them without a problem. This is how I did that:</p>
-<pre class="brush: bash; title: ; notranslate">
+<pre class="brush: bash; title: ; notranslate" title="">
 cd [directory where your shapefiles]
 shapeindex *.shp
 for i in *.shp
@@ -202,7 +276,7 @@ for i in *.shp
 </pre>
 <p>If you grabbed the <a title="evz/demo on Github" href="https://github.com/evz/demo" target="_blank">Github repo</a> at the beginning, I&#8217;ve already done that for those files so you can skip that part. If not, you&#8217;ll need to have the GDAL libraries installed on whichever machine you run that command on.</p>
 <p>Again, I&#8217;m not going to get too into the nuances of designing your tile layers. I&#8217;m just going to stick with something very basic to demonstrate the principles here. This is the stylesheet I used for TileMill:</p>
-<pre class="brush: css; title: ; notranslate">
+<pre class="brush: css; title: ; notranslate" title="">
 #counties {
   polygon-opacity: 0;
   line-width: 2;
@@ -215,7 +289,7 @@ for i in *.shp
 <p><strong>Setup TileStache</strong></p>
 <p>One of the formats that TileStache can use to style up your tiles is called Mapnik XML which, handily enough, TileMill provides for any project you start. When you&#8217;re looking at your project, just click the little wrench icon to the right of the breadcrumb menu at the top and then click &#8220;Mapnik XML&#8221; near the bottom of that dialog. This will generate an XML file and save it onto your local file system. </p>
 <p>Before we can put that into TileStache, there are a couple things you&#8217;ll need to know about setting up TileStache and making sure those XML files will work. First, for the purposes of this demo, I setup a separate VM that is running my tilestache instance. This, in a nutshell, is how I did that from a base Ubuntu 10.04 box (can&#8217;t remember why I chose that version but, hey):</p>
-<pre class="brush: bash; title: ; notranslate">
+<pre class="brush: bash; title: ; notranslate" title="">
 apt-get install python-software-properties
 add-apt-repository ppa:developmentseed/mapbox
 apt-get update
@@ -234,7 +308,7 @@ gunicorn &quot;TileStache:WSGITileServer('configs/demo.cfg')&quot;
 </pre>
 <p>The tricky part there is using the <a title="Development Seed" href="http://developmentseed.org/" target="_blank">Development Seed</a> PPA to get an already built Mapnik2. Ubuntu is still on a older version by default. You&#8217;ll need the newer version in order to get TileStache to be able to read the XML files that TileMill produces, since they use a newer spec. The requirements file that I included in the <a title="evz/demo on Github" href="https://github.com/evz/demo" target="_blank">Github repo</a> includes <a title="Gunicorn" href="http://gunicorn.org/" target="_blank">Gunicorn</a> to handle the WSGI stuff and the last line of that code above is actually how you get TileStache running under Gunicorn. </p>
 <p>The three parts that TileStache needs to start cranking out files are the Mapnik XML that we got from TileMill, the actual data source (in this sample it&#8217;s just a shapefile) and a configuration file. This is the config file that I&#8217;m going to use for the counties layer:</p>
-<pre class="brush: jscript; title: ; notranslate">
+<pre class="brush: jscript; title: ; notranslate" title="">
 {
   &quot;cache&quot;:
   {
@@ -257,7 +331,7 @@ gunicorn &quot;TileStache:WSGITileServer('configs/demo.cfg')&quot;
 <p>The first thing is to get rid of the background color, if you set one in TileMill. It&#8217;s at the end of the first <code>Map</code> element in the file. The other thing to do is make sure that the XML file knows how to find your data source. There&#8217;s a <code>Parameter name="file"</code> tag in the XML that you&#8217;ll want to edit to point to where your shapefile is stored on the machine that is running TileStache. I&#8217;ve included a configuration file and a rendered version of the Mapnik XML in the tilestache folder within the Github repo so you should be pretty much ready to go for the next part.</p>
 <p><strong>Putting tiles on the map</strong></p>
 <p>After all that, Leaflet actually makes it pretty easy to put the tiles on the map:</p>
-<pre class="brush: jscript; title: ; notranslate">
+<pre class="brush: jscript; title: ; notranslate" title="">
     $(document).ready(function(){
         var streets = new L.TileLayer('http://{s}.tile.cloudmade.com/[My API key]/998/256/{z}/{x}/{y}.png');
         var counties = new L.TileLayer('http://tiles/counties/{z}/{x}/{y}.png');
@@ -278,7 +352,7 @@ gunicorn &quot;TileStache:WSGITileServer('configs/demo.cfg')&quot;
 <p><strong>Getting back the data and more interactivity</strong></p>
 <p>Using the tile layers to draw the boundaries of the shapes has one huge advantage over using polygons: performance. All the browser really needs to know how to do is load a bunch of images which it does pretty well. But, since they are just images, we lose our interactivity. Just as a quick aside, there is a way to to add interactivity directly to the tile layers but since TileStache doesn&#8217;t have that built in (yet), I&#8217;m not gonna cover it here. Interested? <a href="http://mapbox.com/mbtiles-spec/" title="MBTiles" target="_blank">Check it out (the interesting part is the part on the UTFGrid).</a>.</p>
 <p>First off, let&#8217;s add the ability to search this sucker. The simplest way to accomplish this is by leveraging <a href="http://code.google.com/apis/maps/documentation/geocoding/" title="Google GeoCoder" target="_blank">Google&#8217;s GeoCoder API</a>. If you&#8217;ve never used it before, think of it as the brains behind the Google&#8217;s map search, because that&#8217;s what it is. Give it an address or a fragment of an address and it gives you back geographic info about it. Multiple matches? No problem, it gives you the opportunity to clarify. Here&#8217;s how I implemented that in a Django view for the example project:</p>
-<pre class="brush: python; title: ; notranslate">
+<pre class="brush: python; title: ; notranslate" title="">
 def map_search(request):
     counties = County.objects.all()
     places = Place.objects.all()
@@ -332,7 +406,7 @@ def map_search(request):
 </pre>
 <p>So, quick rundown of what&#8217;s going on here: First time the view gets hit, it just renders the template and adds the bounding box info back into the context so that we can set the zoom for the map. The next time (and subsequent times) it&#8217;s hit with an Ajax request, it takes the <code>search</code> parameter from the querystring and sends it over to Google&#8217;s Geocoder using the excellent <a href="http://docs.python-requests.org/en/latest/index.html" title="Python Requests" target="_blank">Python Requests</a> library. When it gets the response back, it parses it, finds the bounding box of the area in question (whether it&#8217;s a city or a zip code or whatever), then hits the GeoDjango database with this query <code>.filter(mpoly__bboverlaps=bbox_poly)</code> to find all the counties and places that fit within that bounding box (or, more precisely, overlap with that bounding box). There are a bunch of query filters that you can apply here that are pretty <a href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/geoquerysets/#spatial-lookups" title="GeoDjango - Spatial Lookups" target="_blank">verbosely documented</a> in the GeoDjango documentation. Needless to say, I&#8217;m intentionally casting a pretty wide net. Once it has all the matching geometries, this view then packages it up on a JSON object and returns it back to the client.</p>
 <p>Here&#8217;s what&#8217;s happening on the client side:</p>
-<pre class="brush: jscript; title: ; notranslate">
+<pre class="brush: jscript; title: ; notranslate" title="">
     var county_geo, place_geo, map, geojson, counties, places;
     $(document).ready(function(){
         var streets = new L.TileLayer('http://{s}.tile.cloudmade.com/bcf2471ca35f48a6a4e28a704ba64c9c/998/256/{z}/{x}/{y}.png');
@@ -443,7 +517,7 @@ def map_search(request):
 <p><strong>Add some data to your map</strong></p>
 <p>For this example, I&#8217;m going to add some census data to the little popups using <a href="http://census.ire.org/" title="Census data from IRE" target="_blank">an API</a> that was built by the <a href="http://www.ire.org/" title="Investigative Reporters and Editors" target="_blank">Investigative Reporters and Editors</a> organization in partnership with a bunch of other folks. Luckily for us, we can leverage it pretty easily on the client side. As a quick aside, there are tons of tools on the <a href="http://census.ire.org/" title="Census data from IRE" target="_blank">census.ire.org</a> site for analyzing and sharing census data. Check it out if you&#8217;re into that.</p>
 <p>Diving right in, here is the client side code that I added to the last example to get the total population of each area to show up in the little bubble along with the name of the place or county:</p>
-<pre class="brush: jscript; title: ; notranslate">
+<pre class="brush: jscript; title: ; notranslate" title="">
 var census_data = {};
 $(document).ready(function(){
     //...(snip)...
@@ -492,240 +566,124 @@ function zoom_detail(id, cl){
 <p>Taking a step back, I&#8217;m hoping you&#8217;re eyes are kind of getting wide and you&#8217;re starting to see the potential here. In this example, I just used the <code>geoid</code> to get census data but if you don&#8217;t have that and just have geospatial data, you can leverage something like the Chicago Tribune&#8217;s <a href="http://boundaries.tribapps.com/#api" title="Chicago Tribune Boundary Service API" target="_blank">Boundary Service API</a> to get those ids (and even the boundary data itself). </p>
 <p><strong>Conclusions?</strong></p>
 <p>The purpose of this post (and the accompanying presentation that I&#8217;m going to give tonight at the <a href="http://www.facebook.com/event.php?eid=267220009989198" title="Chicago Djangonauts - November meeting" target="_blank">Chicago Djangonauts</a> meeting) is to just demonstrate some of the tools that are out there and really just to get you thinking about what&#8217;s possible. The samples here are by no means a working, production ready application but hopefully just something to get your mind going.</p>
-]]></content:encoded>
-			<wfw:commentRss>http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/feed/</wfw:commentRss>
-		<slash:comments>0</slash:comments>
-		</item>
-		<item>
-		<title>Making search possible on a static site</title>
-		<link>http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/</link>
-		<comments>http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/#comments</comments>
-		<pubDate>Thu, 27 Oct 2011 15:13:41 +0000</pubDate>
-		<dc:creator>Eric</dc:creator>
-				<category><![CDATA[Code]]></category>
-		<category><![CDATA[How-Tos]]></category>
-		<category><![CDATA[Google AppEngine]]></category>
-		<category><![CDATA[Javascript]]></category>
-		<category><![CDATA[jQuery]]></category>
-		<category><![CDATA[Python]]></category>
+								
+			</div>
+	
+			<div class="post-metadata alt">
+				<p><strong>Date:</strong> <a href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/" rel="bookmark" title="Permanent Link to Mapping tools 101: A few things I&#8217;ve picked up">October 29th, 2011</a> </p>
+				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a>, <a href="http://www.static-eric.com/category/maps/" title="View all posts in Maps" rel="category tag">Maps</a></p>
+				<p><strong>Tags:</strong> <a href="http://www.static-eric.com/tag/census/" rel="tag">Census</a>, <a href="http://www.static-eric.com/tag/javascript/" rel="tag">Javascript</a>, <a href="http://www.static-eric.com/tag/leaflet/" rel="tag">Leaflet</a>, <a href="http://www.static-eric.com/tag/maps/" rel="tag">Maps</a>, <a href="http://www.static-eric.com/tag/python/" rel="tag">Python</a>, <a href="http://www.static-eric.com/tag/tilemill/" rel="tag">TileMill</a>, <a href="http://www.static-eric.com/tag/tilestache/" rel="tag">TileStache</a></p>				<p><strong>Comments/Trackbacks:</strong>
+								<a href="#respond">Comments</a>, or <a href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/trackback/" rel="trackback">trackback</a> allowed.</p>
+	
+								</p>
+			</div>
+	
+<div id="disqus_thread">
+    </div>
 
-		<guid isPermaLink="false">http://www.static-eric.com/?p=45</guid>
-		<description><![CDATA[One of the challenges I identified early one when setting up this site was that it was going to be a bit tricky to get some kind of search tool working for it. When I Googled it, I was pretty excited to find this tool but when I sat down yesterday to implement it, it ... <a href="http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/">Continue Reading</a>]]></description>
-			<content:encoded><![CDATA[<p>One of the challenges I identified early one when <a title="OMG FREE HOSTING: An homage to Harper Reed" href="http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/" target="_blank">setting up this site</a> was that it was going to be a bit tricky to get some kind of search tool working for it. When I Googled it, I was pretty excited to find <a title="Tapir search" href="http://tapirgo.com/" target="_blank">this tool</a> but when I sat down yesterday to implement it, it was broke. And by broke, I mean it wasn&#8217;t returning any results and the developers weren&#8217;t responding to any attempts at communications. So, I figured, if they can parse my RSS feed and turn it into something that returns search results, so can I. What follows is how I managed to get that going.</p>
-<p><strong>AppEngine, again</strong></p>
-<p>It seems like recently I&#8217;ve found quite a few uses for AppEngine. And this is without even really having it on my radar before last week. Besides serving this site from it, a coworker and I put together a little email handler for a <a title="Wufoo" href="http://wufoo.com" target="_blank">Wufoo</a> form on AppEngine earlier this week. So, when my dream of making this site only rely on external web services for interactivity fell apart at some point yesterday, I guess it seemed like a natural fit.</p>
-<p>Really, all that the search widget over there in the right sidebar does is do a jQuery <code>$.getJson</code> call to the AppEngine app which grabs my <a title="Static Eric RSS Feed" href="http://feeds.feedburner.com/static-eric" target="_blank">RSS feed</a> from Feedburner, parses it, looks for the query string in the content of the feed, and then returns a JSONP reponse. Here&#8217;s what that looks like on the AppEngine side:</p>
-<pre class="brush: python; title: ; notranslate">
+<script type="text/javascript">
+/* <![CDATA[ */
+    var disqus_url = 'http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/';
+    var disqus_identifier = '58 http://www.static-eric.com/?p=58';
+    var disqus_container_id = 'disqus_thread';
+    var disqus_domain = 'disqus.com';
+    var disqus_shortname = 'static-eric';
+    var disqus_title = "Mapping tools 101: A few things I&#8217;ve picked up";
+        var disqus_config = function () {
+        var config = this; // Access to the config object
 
-#!/usr/bin/env python
-import logging
-import json
-import webapp2 as webapp
-from feedparser import parse
+        /* 
+           All currently supported events:
+            * preData — fires just before we request for initial data
+            * preInit - fires after we get initial data but before we load any dependencies
+            * onInit  - fires when all dependencies are resolved but before dtpl template is rendered
+            * afterRender - fires when template is rendered but before we show it
+            * onReady - everything is done
+         */
 
-class SearchSite(webapp.RequestHandler):
-def get(self):
-q = self.request.get('query', '')
-cb = self.request.get('callback', '')
-tree = parse('http://feeds.feedburner.com/static-eric')
-d = {}
-resp = []
-for entry in tree['entries']:
-    if q.lower() in entry['content'][0]['value'].lower():
-        props = {}
-        props['title'] = entry['title']
-        props['updated'] = entry['updated']
-        props['summary'] = entry['summary']
-        props['link'] = entry['links'][0]['href']
-        resp.append(props)
-        d['status'] = 'ok'
-    else:
-        d['status'] = 'no_results'
-    d['resp'] = resp
-    d = json.dumps(d)
-    d = &quot;%s(%s)&quot; % (cb,str(d))
-    self.response.out.write(d)
-
-app = webapp.WSGIApplication([('/', SearchSite)], debug=True)
-</pre>
-<p>Since the client is calling a Cross Domain resource here, the response needs to be a JSONP response in order for jQuery to be cool with it (hence wrapping the json in the callback there). The other really, really cool thing I found was <a title="Feedparser on Google Code" href="http://code.google.com/p/feedparser/" target="_blank">Feedparser. </a>The project is very mature but, unfortunately, the docs were on a domain that was owned by <a title="Mark Pilgrim on Wikipedia" href="http://en.wikipedia.org/wiki/Mark_Pilgrim_%28software_developer%29" target="_blank">Mark Pilgrim</a> (he was a heavy contributor to the project, apparently) so when he performed his recent info-suicide, that domain went with him. They&#8217;re putting docs up onto PyPi soon (at least that&#8217;s what the chatter in their forums is saying)</p>
-<p>Anyways, it&#8217;s pretty easy to use. Import the module, give it a URL (or a sting with XML in it) and whammo, you&#8217;ve got a Python dictionary with all the stuff from the feed in it. Since the docs are temporarily gone, I can&#8217;t really say what other types of feeds or XML formats it accepts but it worked for the one that I&#8217;m generating from WordPress.</p>
-<p>One other thing about that code that you&#8217;ll notice is that instead of doing the normal <code>from google.appengine.ext import webapp</code> I&#8217;m doing <code>import webapp2 as webapp</code> and I&#8217;m also able to do <code>import json</code> even though AppEngine is still on Python 2.5. This is because in my app.yaml, I told it to use Python 2.7:</p>
-<pre class="brush: xml; title: ; notranslate">
-application: static-eric-search
-version: 1
-runtime: python27
-api_version: 1
-threadsafe: true
-
-handlers:
-
-- url: .*
-  script: main.app
-</pre>
-<p>On the client-side, I&#8217;m just taking the response and sticking it over in a div underneath the search form:</p>
-<pre class="brush: jscript; title: ; notranslate">
-
-(function($){
-    $('#searchsubmit').live('click', function(){
-        $('.result').remove();
-        $.getJSON('http://static-eric-search.appspot.com/?query='+$(this).prev().val()+'&amp;callback=?', function(data){
-            var info = '';
-            if (data['status'] == 'ok'){
-                $.each(data['resp'], function(key,val){
-                    info += '&lt;div&gt;&lt;h4&gt;&lt;a href=&quot;#&quot;&gt;' + val['title'] + '&lt;/a&gt;&lt;/h4&gt;';
-                    info += '&lt;p&gt;&lt;em&gt;Updated: ' + val['updated'] + '&lt;/em&gt;&lt;/p&gt;';
-                    info += '&lt;div style=&quot;display:none;&quot;&gt;&lt;p&gt;' + val['summary'] + '&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;'
-                });
-            } else {
-                info += '&lt;div class&quot;result&quot;&gt;&lt;h4&gt;Your search found nothing. Try again&lt;/h4&gt;&lt;/div&gt;';
-            }
-            $('#search-results').append(info);
+        config.callbacks.preData.push(function() {
+            // clear out the container (its filled for SEO/legacy purposes)
+            document.getElementById(disqus_container_id).innerHTML = '';
         });
-    });
-    $('.result h4 a').live('click', function(){
-    $(this).parent().parent().find('.result-summary').toggle('blind');
-});
-})(jQuery);
-</pre>
-<p>So, I guess that&#8217;s pretty much it. That&#8217;s how you get get search working on a static site. It would be really cool to see <a title="Tapir search" href="http://tapirgo.com/" target="_blank">these guys</a> get their act together but, I guess it was kinda fun to do it on my own as well.</p>
-]]></content:encoded>
-			<wfw:commentRss>http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/feed/</wfw:commentRss>
-		<slash:comments>0</slash:comments>
-		</item>
-		<item>
-		<title>2010 Census: Getting setup</title>
-		<link>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/</link>
-		<comments>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/#comments</comments>
-		<pubDate>Mon, 24 Oct 2011 13:09:06 +0000</pubDate>
-		<dc:creator>Eric</dc:creator>
-				<category><![CDATA[Code]]></category>
-		<category><![CDATA[How-Tos]]></category>
-		<category><![CDATA[Census]]></category>
-		<category><![CDATA[Setup]]></category>
+                config.callbacks.onReady.push(function() {
+            // sync comments in the background so we don't block the page
+            DISQUS.request.get('?cf_action=sync_comments&post_id=58');
+        });
+                    };
+    var facebookXdReceiverPath = 'http://www.static-eric.com/wp-content/plugins/disqus-comment-system/xd_receiver.htm';
+/* ]]> */
+</script>
 
-		<guid isPermaLink="false">http://www.static-eric.com/?p=39</guid>
-		<description><![CDATA[After attending this meetup last week, I was pretty excited to get going on hacking census data for my own purposes. I had the day off on Thursday so I spent most of the day trying to get the census.ire.org source code running in a local VM. Despite being one of those guys that&#8217;s pretty ... <a href="http://www.static-eric.com/2011/10/24/2010-census-getting-setup/">Continue Reading</a>]]></description>
-			<content:encoded><![CDATA[<p>After attending <a title="Hacks/Hackers October Meetup" href="http://meetupchicago.hackshackers.com/events/36413602/?eventId=36413602&amp;action=detail" target="_blank">this meetup</a> last week, I was pretty excited to get going on hacking census data for <a title="2010 Census: Leveraging what’s already been done" href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/" target="_blank">my own purposes</a>. I had the day off on Thursday so I spent most of the day trying to get the <a title="census.ire.org" href="http://census.ire.org/" target="_blank">census.ire.org</a> source <a title="census.ire.org on github" href="https://github.com/ireapps/census" target="_blank">code</a> running in a local VM. Despite being one of those guys that&#8217;s pretty good at following directions, I did run into a few problems (but, then again, I&#8217;m not much of a sysadmin). In the spirit of maybe making someone&#8217;s life easier, here&#8217;s how I got the project going in a Ubuntu 11.04 <a title="Vagrant" href="http://vagrantup.com/" target="_blank">vagrant VM</a>.</p>
-<p><strong>First, a minor divergence</strong></p>
-<p>The docs over in the <a title="census.ire.org on github" href="https://github.com/ireapps/census" target="_blank">github repo</a> follow standard Python development practices by first setting up a virtualenv into which all the code libraries for the project get installed thereby making it easy to compartmentalize what you&#8217;re doing in one project from another. Try as I might, I was unable to make this work (I posted <a title="#137: GDAL python bindings not liking virtualenv" href="https://github.com/ireapps/census/issues/137" target="_blank">an issue</a> in the repo, for those interested). There&#8217;s probably an easy answer out there somewhere but I, for one, was unable to find it. Since I was already setting this up in it&#8217;s own VM, I figured that made it compartmentalized enough for me so I went ahead and installed everything globally just so I could get the project up and running. So, without further ado, here&#8217;s the short version of how I setup my VM</p>
-<pre class="brush: bash; title: ; notranslate">
+<script type="text/javascript">
+/* <![CDATA[ */
+    var DsqLocal = {
+        'trackbacks': [
+        ],
+        'trackback_url': "http:\/\/static\/wordpress\/2011\/10\/29\/mapping-tools-101-a-few-things-ive-picked-up\/trackback\/"    };
+/* ]]> */
+</script>
 
-apt-get install git-core
-apt-get install python-software-properties
-add-apt-repository ppa:pitti/postgresql # PPA for PostgreSQL 9.0
-add-apt-repository ppa:ubuntugis/ubuntugis-unstable # PPA for current GIS libs
-apt-get update
-apt-get install libgdal1-dev libgeos-dev proj python-dev libpq-dev postgresql-server-dev-9.0 postgresql-contrib-9.0 python-gdal mongodb mdbtools
-apt-get install git-core
-git clone https://github.com/ireapps/census.git
-cd census/censusweb/
-vi requirements.txt # Comment out GDAL line
-pip install -r requirements.txt
-wget http://postgis.refractions.net/download/postgis-1.5.3.tar.gz
-tar -xvf postgis-1.5.3.tar.gz
-cd postgis-1.5.3/
-./configure
-make
-make install
-su - postgres # Switch to postgres superuser
-psql
-### Inside pgsql shell
-postgres=# create user censusweb with password 'Xy9XKembdu'; # Create new user to match the one in settings.py
-postgres=# \q
-### Back to bash
-psql -d postgres -c &quot;UPDATE pg_database SET datistemplate='true' WHERE datname='template_postgis';&quot;
-psql -d template_postgis -f /usr/share/postgresql/9.0/contrib/postgis-1.5/postgis.sql
-psql -d template_postgis -f /usr/share/postgresql/9.0/contrib/postgis-1.5/spatial_ref_sys.sql
-psql -d template_postgis -c &quot;GRANT ALL ON geometry_columns TO PUBLIC;&quot;
-psql -d template_postgis -c &quot;GRANT ALL ON geography_columns TO PUBLIC;&quot;
-psql -d template_postgis -c &quot;GRANT ALL ON spatial_ref_sys TO PUBLIC;&quot;
-exit # Switch back to root
-python manage.py runserver
-</pre>
-<p><strong>What&#8217;s next?</strong></p>
-<p>For me, that&#8217;s more a strategy question that anything. I&#8217;ve <a title="2010 Census: Leveraging what’s already been done" href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/">written a bit</a> about my motivations and what I hope to get out of it. In the couple days since then, I think I&#8217;ve come up with a more specific approach which I&#8217;ll be writing about once I have it laid out end to end (and get a few particulars cleared up). So, uh, once again, stay tuned.</p>
-]]></content:encoded>
-			<wfw:commentRss>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/feed/</wfw:commentRss>
-		<slash:comments>0</slash:comments>
-		</item>
-		<item>
-		<title>2010 Census: Leveraging what’s already been done</title>
-		<link>http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/</link>
-		<comments>http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/#comments</comments>
-		<pubDate>Sun, 23 Oct 2011 16:04:35 +0000</pubDate>
-		<dc:creator>Eric</dc:creator>
-				<category><![CDATA[Code]]></category>
-		<category><![CDATA[Baha'is]]></category>
-		<category><![CDATA[Census]]></category>
-		<category><![CDATA[Maps]]></category>
+<script type="text/javascript">
+/* <![CDATA[ */
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = 'http://' + disqus_shortname + '.' + disqus_domain + '/embed.js?pname=wordpress&pver=2.67';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+/* ]]> */
+</script>
+	</div>		
+</div>
 
-		<guid isPermaLink="false">http://www.static-eric.com/?p=21</guid>
-		<description><![CDATA[Part of what I do at work is make maps. To me, the best maps are those that show you, at a glance, something interesting about what&#8217;s going on around you, and, if you&#8217;re curious, allow you to explore what&#8217;s going on in the rest of the world. I&#8217;ve been following what the TribApps team ... <a href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/">Continue Reading</a>]]></description>
-			<content:encoded><![CDATA[<p>Part of what I do at work is make maps. To me, the best maps are those that show you, at a glance, something interesting about what&#8217;s going on around you, and, if you&#8217;re curious, allow you to explore what&#8217;s going on in the rest of the world. I&#8217;ve been following what the <a title="News Apps Blog" href="http://blog.apps.chicagotribune.com/" target="_blank">TribApps</a> team has been doing with the 2010 census data as it has been coming out and after going to a recent <a title="Hacks/Hackers October Meetup" href="http://meetupchicago.hackshackers.com/events/36413602/?eventId=36413602&amp;action=detail" target="_blank">Hacks/Hackers Meetup</a> where <a title="Through the Wire" href="http://blog.germuska.com/" target="_blank">Joe Germuska</a> presented some of the APIs that they&#8217;ve been working on and I gotta say, I was inspired. Below are some preliminary steps and observations.</p>
-<p><strong>Custom boundaries, normalized data</strong></p>
-<p>During the day, I work for the <a title="Baha'is of the United States" href="http://www.bahai.us" target="_blank">Bahá&#8217;ís of the United States</a>. The administration of the affairs of the Bahá&#8217;ís across the country are organized based on geographic boundaries which we call, originally enough, Bahá&#8217;í Localities. The boundaries of these geographies sometimes match up with normal things like counties, townships or municipal boundaries but are more often that not combinations or subdivisions of those. The other complexity is that they combine together to form other types of administrative subdivisions which have nothing to do with any other existing shapes defined by people who have large warehouses full of geographers busily drawing lines on maps. The upshot of all this is that if you want to try to project something like census data onto these areas, it can get kinda tricky. Luckily, someone had the foresight to assign a <a title="Federal Information Processing Standard on Wikipedia" href="http://en.wikipedia.org/wiki/Federal_Information_Processing_Standard" target="_blank">FIPS</a> code to each of these areas so at least approximations can be made.</p>
-<p>Also luckily, someone (namely <a title="census.ire.org" href="http://census.ire.org/" target="_blank">these guys)</a> has already done a bunch of the dirty work when it comes to normalizing the data provided by the census as well as putting a <a title="census.ire.org - javascript api docs" href="http://census.ire.org/docs/javascript-library.html" target="_blank">JavaScript API</a> on it. For me, however, since I&#8217;m going to need to do a lot of custom combinations of that data, and to be quite honest I don&#8217;t really need <em>all</em> of it, I&#8217;m thinking I&#8217;m probably going to need to pull down the data that I need at put it into the Django models that house the rest of our geospatial data. That way I can preprocess a lot of it and have it ready when it&#8217;s needed.</p>
-<p><strong>Preliminary steps</strong></p>
-<p>So far all I&#8217;ve done is setup the <a title="census.ire.org on github" href="https://github.com/ireapps/census" target="_blank">Django project</a> powering census.ire.org and poked around with the API a bit. There are a ton of scripts within the project which do all kinds of wonderful things to get going with the mountain of data within the census. Since I&#8217;m mainly interested in grabbing this data and comparing it to what I&#8217;ve already got established with my larger mapping project, the first step is to actually make the models. I&#8217;ll try to keep this blog up to date with any pitfalls I encounter or brilliant discoveries I make. So, uh, if you&#8217;ve read this far, stay tuned.</p>
-]]></content:encoded>
-			<wfw:commentRss>http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/feed/</wfw:commentRss>
-		<slash:comments>0</slash:comments>
-		</item>
-		<item>
-		<title>OMG FREE HOSTING: An homage to Harper Reed</title>
-		<link>http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/</link>
-		<comments>http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/#comments</comments>
-		<pubDate>Sat, 22 Oct 2011 18:16:04 +0000</pubDate>
-		<dc:creator>Eric</dc:creator>
-				<category><![CDATA[Code]]></category>
-		<category><![CDATA[How-Tos]]></category>
-		<category><![CDATA[DryDrop]]></category>
-		<category><![CDATA[Google AppEngine]]></category>
-		<category><![CDATA[Static]]></category>
-		<category><![CDATA[Wordpress]]></category>
+	<div id="footer">
+		<p>&copy; 2010 Eric van Zanten &#8211; Statically | Powered by <a href="http://www.sorben.org/really-static/">really static WordPress</a> | Theme: <a href="http://leonewball.com/portfolio/tabula-rosa/">tabula rosa</a> | <a href="http://www.static-eric.com/feed/">RSS Feed</a></p>
+	</div>
 
-		<guid isPermaLink="false">http://www.static-eric.com/?p=4</guid>
-		<description><![CDATA[Back in January, I read this and thought it was a pretty cool idea. For some reason, I just kinda filed it away and didn&#8217;t really think about it until sometime in the early morning hours of October 22 when I got the urge to write about this but didn&#8217;t really have anywhere to do ... <a href="http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/">Continue Reading</a>]]></description>
-			<content:encoded><![CDATA[<p>Back in January, I read <a title="OMG FREE HOSTING: How to use GAE to host static sites for free" href="http://www.nata2.org/2011/01/26/how-to-use-app-engine-to-host-static-sites-for-free/" target="_blank">this</a> and thought it was a pretty cool idea. For some reason, I just kinda filed it away and didn&#8217;t really think about it until sometime in the early morning hours of October 22 when I got the urge to write about <a title="2010 Census: Leveraging what’s already been done" href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/">this</a> but didn&#8217;t really have anywhere to do it. Add to that the fact that I my brain starts hurting when I start to see the long road of configuring and deploying a site, whatever the platform. I just wanted something that would kinda be there, look presentable out of the box, and not have anything to do with PHP. What I came up with looks a little like this:</p>
-<p>1) WordPress stack running locally on a <a title="Vagrant" href="http://vagrantup.com/" target="_blank">Vagrant VM</a> (OK, OK, so, there is a bit of PHP)</p>
-<p>2) <a title="Really static - WordPress Plugin Directory" href="http://wordpress.org/extend/plugins/really-static/" target="_blank">Really Static</a> WordPress plugin to render content as flat HTML</p>
-<p>3) A bit of symlink magic to get all the necessary static files from the theme and the flat HTML files into one directory</p>
-<p>4) A <a title="Eric on github" href="https://github.com/evz/static-eric" target="_blank">Github repo</a> where I push all the junk from above and a post-receive hook to sync it with AppEngine</p>
-<p>5) <a title="DryDrop: Update AppEngine site by pushing to Github" href="http://drydrop.binaryage.com/" target="_blank">DryDrop</a> to setup the Google AppEngine project</p>
-<p>In the end, it was pretty simple. Probably because I insist on only skimming the directions when setting these things up, I did run into a few pitfalls which I&#8217;ll share here.</p>
-<p><strong>AppEngine and DryDrop setup</strong></p>
-<p>When you actually get into it, AppEngine is pretty nifty. Breaking into it by trying to use it for something that it wasn&#8217;t really meant to do is not something I recommend unless you&#8217;re smarter than me (<a title="Zen of Python" href="http://www.python.org/dev/peps/pep-0020/" target="_blank">or Dutch,</a> apparently). It&#8217;s kinda like watching a movie from the other side of the screen, or something. After downloading DryDrop, it took me quite a while to figure out that it expected you to have the AppEngine SDK setup in the way that it gets setup when you install it on OS X. DryDrop looks for the SDK files in /usr/local and if you&#8217;re trying to make this work on something like Ubuntu, you either need to take that into account, or just get a Mac. Once you get over that, DryDrop works like a charm. Oh, and, it seems that if you want to use a custom domain with your AppEngine account, you&#8217;ve got to set it up on Google Apps, which is also free, but it&#8217;s yet another hassle.</p>
-<p>The other big, big thing that I ran into was the way that AppEngine is very literal when it comes to static content. The way that the Really Static plugin spits out content is the way that you&#8217;d expect it to if you were going to be hosting it on a box using Apache or something. So, to fake the pretty URLs, it makes a folder with an index.html file inside (which something like Apache would use by default when serving that URL). AppEngine is not Apache. What I finally came up with was to put this into the DryDrop site.yaml (which is kind of a slimmed down version of the normal app.yaml that AppEngine normally uses).</p>
-<pre class="brush: xml; title: ; notranslate">handlers:
-- url: /(.*)/(.*)/(.*)/(.*)/
-static_files: \1/\2/\3/\4/index.html
-upload: .*/.*/.*/.*/index\.html
-- url: /(.*)/(.*)/(.*)/
-static_files: \1/\2/\3/index.html
-upload: .*/.*/.*/index\.html
-- url: /(.*)/(.*)/
-static_files: \1/\2/index.html
-upload: .*/.*/index\.html
-- url: /(.*)/
-static_files: \1/index.html
-upload: .*/index\.html
-- url: '/'
-static_files: 'index.html'
-upload: '.*'
-- url: '/'
-static_dir: '/'</pre>
-<p>It&#8217;s kinda hacky, but it works. It basically uses the regexes to find the appropriate index.html files so that I can keep my pretty URLs.</p>
-<p><strong>WordPress</strong></p>
-<p>I struggle with Apache. I&#8217;m allergic to PHP. But my fear/loathing of fiddling with UI stuff for my own personal outweighs that so I went and grabbed <a title="XAMPP" href="http://www.apachefriends.org/en/xampp.html" target="_blank">XAMPP</a> and segregated my WordPress installation onto it&#8217;s own little VM. That way if I get really pissed off and just can&#8217;t take it anymore, I can do</p>
-<pre class="brush: bash; light: true; title: ; notranslate">vagrant destroy</pre>
-<p>and then it will know who&#8217;s boss. I tried a bunch of different ways of getting flat HTML out of WordPress but the Really Static plugin was by far the best. It&#8217;s one of those things that just kinda works. For those of you out there that are looking to make WordPress really, really fast by static-ifying it, this plugin not only creates the flat files for you, but will change the links to use a different domain and upload them to a remote server all when ever the database is changed. So, uh, I&#8217;m not sure why anyone would put up with hosting a WordPress site anymore. Oh, there is that one thing:</p>
-<p><strong>Search</strong></p>
-<p>This is the one thing I have yet to figure out. I&#8217;m looking at using <a title="Tapir search" href="http://tapirgo.com/" target="_blank">Tapir</a>, but that involves building an RSS feed which is possible for a flat site but I&#8217;ll need to figure out a way to put this into my workflow so that it isn&#8217;t a pain in the ass. In the meantime, I&#8217;m not too worried about it cause there&#8217;s only like 2 posts and a page. So, you&#8217;re on your own there.</p>
-<p>I suppose this is just the beginning. I&#8217;m hoping this is a sustainable solution and Google doesn&#8217;t catch on and start charging me cause it&#8217;s pretty slick.</p>
-]]></content:encoded>
-			<wfw:commentRss>http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/feed/</wfw:commentRss>
-		<slash:comments>0</slash:comments>
-		</item>
-	</channel>
-</rss>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/themes/tabula-rosa/js/menuslide.js?ver=1.0'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/themes/tabula-rosa/js/togglewidgets.js?ver=1.0'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/themes/tabula-rosa/js/fancybox/jquery.fancybox-1.3.4.js?ver=1.3.4'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/themes/tabula-rosa/js/fancybox_settings.js?ver=1.0'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shCore.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushPython.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushJScript.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushBash.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushCss.js?ver=3.0.83c'></script>
+<script type='text/javascript'>
+	(function(){
+		var corecss = document.createElement('link');
+		var themecss = document.createElement('link');
+		var corecssurl = "http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shCore.css?ver=3.0.83c";
+		if ( corecss.setAttribute ) {
+				corecss.setAttribute( "rel", "stylesheet" );
+				corecss.setAttribute( "type", "text/css" );
+				corecss.setAttribute( "href", corecssurl );
+		} else {
+				corecss.rel = "stylesheet";
+				corecss.href = corecssurl;
+		}
+		document.getElementsByTagName("head")[0].insertBefore( corecss, document.getElementById("syntaxhighlighteranchor") );
+		var themecssurl = "http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/styles/shThemeDefault.css?ver=3.0.83c";
+		if ( themecss.setAttribute ) {
+				themecss.setAttribute( "rel", "stylesheet" );
+				themecss.setAttribute( "type", "text/css" );
+				themecss.setAttribute( "href", themecssurl );
+		} else {
+				themecss.rel = "stylesheet";
+				themecss.href = themecssurl;
+		}
+		//document.getElementById("syntaxhighlighteranchor").appendChild(themecss);
+		document.getElementsByTagName("head")[0].insertBefore( themecss, document.getElementById("syntaxhighlighteranchor") );
+	})();
+	SyntaxHighlighter.config.strings.expandSource = '+ expand source';
+	SyntaxHighlighter.config.strings.help = '?';
+	SyntaxHighlighter.config.strings.alert = 'SyntaxHighlighter\n\n';
+	SyntaxHighlighter.config.strings.noBrush = 'Can\'t find brush for: ';
+	SyntaxHighlighter.config.strings.brushNotHtmlScript = 'Brush wasn\'t configured for html-script option: ';
+	SyntaxHighlighter.defaults['pad-line-numbers'] = false;
+	SyntaxHighlighter.defaults['toolbar'] = false;
+	SyntaxHighlighter.all();
+</script>
+<script type="text/javascript" src="http://www.static-eric.com/wp-content/themes/tabula-rosa/js/search.js"></script>
+</body>
+</html>

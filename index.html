@@ -80,7 +80,9 @@ Eric van Zanten &#8211; Statically | </title>
 				<ul>
 						<li class="cat-item cat-item-3"><a href="http://www.static-eric.com/category/code/" title="View all posts filed under Code">Code</a>
 </li>
-	<li class="cat-item cat-item-4"><a href="http://www.static-eric.com/category/code/how-tos/" title="View all posts filed under How-Tos">How-Tos</a>
+	<li class="cat-item cat-item-4"><a href="http://www.static-eric.com/category/how-tos/" title="View all posts filed under How-Tos">How-Tos</a>
+</li>
+	<li class="cat-item cat-item-10"><a href="http://www.static-eric.com/category/maps/" title="View all posts filed under Maps">Maps</a>
 </li>
 				</ul>
 			</div>
@@ -100,6 +102,473 @@ Eric van Zanten &#8211; Statically | </title>
 
 
 
+			<div id="post-58" class="post-58 post type-post status-publish format-standard hentry category-code category-how-tos category-maps tag-census tag-javascript tag-leaflet tag-maps tag-python tag-tilemill tag-tilestache">
+									<h2 class="posttitle"><a href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/" rel="bookmark" title="Permanent Link to Mapping tools 101: A few things I&#8217;ve picked up">Mapping tools 101: A few things I&#8217;ve picked up</a></h2>
+			<div class="post-author">written by: Eric</div>
+							<div class="entry">
+					<p>My introduction to Python, and Django in particular, was a week-long project to setup, from scratch, a basic, working GeoDjango project. Thanks to some really <a title="GeoDjango" href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/" target="_blank">stellar documentation</a>, which has actually improved quite a bit since back in the day (like, a year and a half ago or whatever), I was able to do it. But, quite frankly, that was only the beginning. When I showed off my little application around the office, it ended up being a full fledged project, which I&#8217;m still tweaking to this day. This is an attempt to unravel some of what I&#8217;ve picked up during that time, especially given all of the recent developments in the web based mapping sphere. This is by no means a comprehensive overview, but rather just a guy sharing how he does what he does.</p>
+<p><strong>Map theory</strong></p>
+<p>Web based maps exist in a browser as layers. You&#8217;ve usually got a street map layer that you can get from someplace like Google or, in my case, <a title="Cloudmade" href="http://cloudmade.com" target="_blank">Cloudmade</a>. This is pretty crucial as it gives the whole thing context. Street map tiles are generally built by rasterizing <a title="Open Street Map" href="http://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> data with varying degrees of detail for different zoom levels (so, for instance, you don&#8217;t see the alley that goes behind your apartment building until you zoom all the way in). Those images are chopped up into little squares and stuck on a server somewhere. On top of the street maps is generally where you&#8217;ll put your data, either in the form of polygons or rasterized tiles (just like the street maps but maybe a bit more transparent so you can see the street maps). These layers get stitched together with a bit of intelligent client-side Javascript which, on the one side, grabs the street maps, and on the other side loads data from your application (either in the form of raw data or more tiles). I&#8217;ll get more into the particulars of how that works in a bit, I just wanted to set the stage a bit so the next few sections have a bit of context.</p>
+<p>Instead of showing you a relatively complex (and not fully implemented) project, I&#8217;ll go ahead and demonstrate a few things by building a rather silly application using some freely available <a title="Download Census shapefiles" href="http://www.census.gov/cgi-bin/geo/shapefiles2010/main" target="_blank">census boundary data</a>. If you&#8217;d like to follow along, once I had the <a title="Install GeoDjango" href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/install/" target="_blank">basic GeoDjango stack</a> up and running, I downloaded California county boundaries and California census place boundaries and put them into <a title="Demo Models Gist" href="https://gist.github.com/1324843" target="_blank">these models</a>. To make that simpler, I used <a title="Load Data script Gist" href="https://gist.github.com/1324841" target="_blank">this script</a> (based on the one from the <a title="GeoDjango Tutorial" href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/tutorial/" target="_blank">GeoDjango tutorial</a>). I&#8217;ve also placed all the code that I put together for this demo in a <a title="evz/demo on Github" href="https://github.com/evz/demo" target="_blank">Github repo</a>.</p>
+<p><strong>Getting some basic data on the map</strong></p>
+<p>Within the context of the GeoDjango application we&#8217;re building, the interaction between the server and client, in it&#8217;s most basic form, can look something like this. First, the Django app&#8217;s urls.py:</p>
+<pre class="brush: python; title: ; notranslate" title="">
+from django.conf.urls.defaults import *
+
+from california.views import *
+
+urlpatterns = patterns('',
+    url(r'^counties/$', counties, name='counties'),
+    url(r'^places/$', places, name='places'),
+)
+</pre>
+<p>Next, the views:</p>
+<pre class="brush: python; title: ; notranslate" title="">
+from django.shortcuts import render_to_response
+from california.models import *
+
+def counties(request):
+    counties = County.objects.all()
+    return render_to_response('basic-county.html', {'counties': counties}, context_instance=RequestContext(request))
+
+def places(request):
+    places = Place.objects.all()
+    return render_to_response('basic-place.html', {'places': places}, context_instance=RequestContext(request))
+</pre>
+<p>Now, the meaty parts: the client-side Javascript. As I mentioned above, this is where all the stitching happens. For this example, I&#8217;m going to use some built in Django template tags and the <a title="OpenLayers" href="http://openlayers.org">OpenLayers</a> Javascript API to get the shapes where I want them with a bit of metadata attached. The snippet below shows you the javascript code from the template that&#8217;s doing most of the work. It&#8217;s inheriting from a template that puts a <code>div</code> with the ID of &#8220;map&#8221; on the page and also loads all the necessary external Javascript libraries. The same sort of approach would work for either of the views detailed above.</p>
+<pre class="brush: jscript; title: ; notranslate" title="">
+var map, vector, wkt, features, options, geom;
+var collect = [];
+var f = [];
+var src = new OpenLayers.Projection('EPSG:4326');
+var dest = new OpenLayers.Projection('EPSG:900913');
+window.onload = function(){
+    options = {
+       'projection' : new OpenLayers.Projection(&quot;EPSG:900913&quot;),
+       'numZoomLevels' : 20,
+       'displayProjection' : new OpenLayers.Projection(&quot;EPSG:4326&quot;),
+       'units' : &quot;m&quot;,
+       'maxResolution' : 156543.0339,
+       'maxExtent' : new OpenLayers.Bounds(-20037508,-20037508,20037508,20037508)
+    };
+    map = new OpenLayers.Map('map', options);
+    layer = new OpenLayers.Layer.OSM(&quot;OpenStreetMap (Mapnik)&quot;);
+    map.addLayer(layer);
+    map.setCenter(
+        new OpenLayers.LonLat(-97, 38).transform(
+            new OpenLayers.Projection(&quot;EPSG:4326&quot;),
+            map.getProjectionObject()
+        ),
+    5
+    );
+    vector = new OpenLayers.Layer.Vector(&quot;Regions&quot;);
+    wkt = new OpenLayers.Format.WKT();
+    {% for county in counties %}
+        features = wkt.read('{{ county.mpoly }}');
+        geom = features.geometry.transform(src, dest);
+        collect.push(geom);
+        var feat = new OpenLayers.Feature.Vector(geom);
+        f.push(feat);
+    {% endfor %}
+    vector.addFeatures(f);
+    map.addLayer(vector);
+};
+</pre>
+<p>If you ask me, that code is kinda clunky. It seems that OpenLayers has the most robust Javascript API allowing you to do everything from what I just demonstrated to allowing users to draw their one shapes on the map. Where this might be kinda fun and useful for some cases, I&#8217;ve never really needed it. What I needed was a client-side Javascript library that was going to be fast, load quickly, work with most browsers and as a bonus maybe even on mobile devices. What I found was <a title="Leaflet" href="http://leaflet.cloudmade.com" target="_blank">Leaflet</a>.</p>
+<p><strong>Adding Leaflet and a bit more complexity</strong></p>
+<p><strong></strong>So, wow, you can load some county shapes on a map. Big deal. My kid can do that. What we want is something that is more interactive, and will maybe even load stuff dynamically as a user requests it. Wouldn&#8217;t that be cool? Not only is this slightly easier to do with Leaflet (as opposed to OpenLayers), it&#8217;s also going to give us an opportunity to flex a few GeoJSON muscles.</p>
+<p>First, let&#8217;s build a Django view:</p>
+<pre class="brush: python; title: ; notranslate" title="">
+def complex_counties(request):
+    counties = County.objects.all()
+    bbox = json.dumps(counties.extent())
+    if request.is_ajax():
+        d = {}
+        for county in counties.geojson():
+            geojson = json.loads(county.geojson)
+            properties = {'name': county.name_trans, 'bbox':county.mpoly.extent, 'center':county.mpoly.point_on_surface.coords}
+            geojson['id'] = county.geo_id
+            geojson['properties'] = properties
+            d[county.geo_id] = geojson
+        return HttpResponse(json.dumps(d), mimetype='application/json')
+    else:
+        return render_to_response('complex-county.html', { 'bbox': bbox }, context_instance=RequestContext(request))
+</pre>
+<p>A couple things to point out before moving on to the client-side.  You&#8217;ll notice that there are two paths here: one for the initial request and one for loading the GeoJSON. This works by adding the bounding box into the context and returning that for use on the client side. On the client side, you load the street map tiles as usual but then the bounding box is used to zoom the map to fit in the browser widow. Once that loads, the client-side code fires a <code>$.getJSON</code> call which gets the GeoJSON from this same view. The handy thing about GeoDjango, is that it constructs that for you out of the box. Whenever you want to access that, you just append <code>.geojson()</code> to the end of your QuerySet and it&#8217;ll make that available to you for each object within that QuerySet.</p>
+<p>The GeoJSON spec provides for a place to put information about the geometry called, predictably enough, &#8220;properties&#8221;. The GeoJSON that is produced by GeoDjango doesn&#8217;t include that but, since it&#8217;s pretty simple to just turn it into a Python dictionary by using the json module, you can add that in there manually and put whatever you want in there. The reasons for this become apparent when parsing this out on the client-side.</p>
+<p>The other thing to point out before moving on to the client side is that you can also quickly access the bounding box of any QuerySet by using the .extent() method. The one screwy thing about that is that the points are reversed. So, it&#8217;s longitude, latitude instead of latitude, longitude (which is what Leaflet will want on the client-side). I chose to take care of that over there (instead of in the Python code) just because I find it to be a bit cleaner and easier.</p>
+<p>Here&#8217;s the client-side code:</p>
+<pre class="brush: jscript; title: ; notranslate" title="">
+    var geojson, map;
+    $(document).ready(function(){
+        var spin_opts = {
+          lines: 12,
+          length: 7,
+          width: 4,
+          radius: 10,
+          color: '#fff',
+          speed: 1,
+          trail: 60,
+          shadow: true
+        };
+        var target = document.getElementById('spinner');
+        var spinner = new Spinner(spin_opts).spin(target);
+        var streets = new L.TileLayer('http://{s}.tile.cloudmade.com/[My API key]/998/256/{z}/{x}/{y}.png');
+        var bb = {{ bbox }};
+        var sw = new L.LatLng(bb[1], bb[0], true);
+        var ne = new L.LatLng(bb[3], bb[2], true);
+        var bbox = new L.LatLngBounds(sw,ne);
+        map = new L.Map('map');
+        map.addLayer(streets);
+        map.fitBounds(bbox);
+        $.getJSON('{% url complex-counties %}', function(data){
+            spinner.stop();
+            parse_map_data(data);
+        });
+    });
+    function parse_map_data(data){
+        $.each(data, function(key,val){
+            geojson = new L.GeoJSON();
+            geojson.on('featureparse', function(e){
+                e.layer.on('click', function(e){
+                    shape_click(this);
+                }, e.properties);
+            });
+            geojson.addGeoJSON(val);
+            map.addLayer(geojson);
+        });
+    }
+    function shape_click(shape){
+        var content = &quot;&lt;h3&gt;&quot; + shape['name'] + &quot;&lt;/h3&gt;&quot;;
+        var popup = new L.Popup();
+        var point = new L.LatLng(shape['center'][1],shape['center'][0]);
+        popup.setLatLng(point);
+        popup.setContent(content);
+        var bb = shape['bbox'];
+        var sw = new L.LatLng(bb[1], bb[0], true);
+        var ne = new L.LatLng(bb[3], bb[2], true);
+        var bbox = new L.LatLngBounds(sw,ne);
+        map.fitBounds(bbox);
+        map.openPopup(popup);
+    }
+</pre>
+<p>Quick rundown on what&#8217;s join on there: when the DOM is ready, the base map gets loaded along with a little <a title="Spin.js" href="http://fgnass.github.com/spin.js/" target="_blank">spinner</a> doo-hicky and a <code>$.getJSON</code> call is fired which grabs the GeoJSON from the view, parses it using the parse_map_data function which in turn adds a click event to each shape that, when fired, zooms the map to that object and pops up a little bubble with the County name in it.</p>
+<p>Now it&#8217;s getting a bit more interesting. There&#8217;s a bit more interactivity and we&#8217;re giving the user some kind of information, however simple, about what they&#8217;re looking at. The one thing we&#8217;re not really doing here is styling the objects as they are coming across but that&#8217;s a pretty trivial thing to do by adding more intelligence into the <code>geojson.on('featureparse'...</code> part up there. Take a look <a title="Leaflet GeoJSON docs" href="http://leaflet.cloudmade.com/reference.html#geojson" target="_blank">over here</a> for more info on how to get that going.</p>
+<p>But, even though it&#8217;s working pretty well at this stage, there is one big thing that is wrong with this approach and that is performance. We&#8217;re loading a whole bunch of stuff into the DOM all at once and I know from personal and painful experience that there are certain browsers (*cough* IE *cough*) on the market that will be crushed, even by this relatively simple map. So, what to do? Well, I&#8217;m glad you asked.</p>
+<p><strong>Flatter is better</strong></p>
+<p>Ever since I identified the map obsession I seem to have in common with the <a title="Chicago Tribune NewsApps" href="http://blog.apps.chicagotribune.com/" target="_blank">News Applications</a> guys down at the Chicago Tribune, I&#8217;ve followed what they produce pretty closely. The thing that really got my attention was a series of <a title="Making maps: Chicago Tribune NewsApps blog" href="http://blog.apps.chicagotribune.com/2011/03/08/making-maps-1/" target="_blank">blog posts</a> that they published in March of this year detailing how they put together a then recent series of maps and which were entirely as static resources from an S3 bucket. As I mentioned earlier, the scale that I was having to deal with in the applications I was putting together kept putting me in the awkward position of trying to explain why it was that IE couldn&#8217;t load 1200 objects into the DOM without folding. If I could pull off the approach that the Chicago Tribune guys were taking, this would not only mean that I could sidestep the whole browser issue but I might even get a pretty cheap hosting solution out of it.</p>
+<p>Well, I didn&#8217;t get everything that I wanted but I did get pretty close. What I came up with was sort of a hybrid solution using the tile layers that the TribApps guys talk about on their blog without losing the intelligence of the GeoDjango backend. </p>
+<p><strong>TileStache</strong></p>
+<p>The big caveat of taking a flatter approach to rendering maps is that there&#8217;s a lot of processing that you have to do up front. To render out tiles for every zoom level for the entire continental United States could take weeks. This is because each time you zoom in you increase the number of tiles you need by a factor of 4 so by the time you get up to zoom level 22 or whatever, you&#8217;re talking about billions of individual images that you&#8217;ll need. </p>
+<p>This is where <a title="TileStache" href="http://tilestache.org/" target="_blank">TileStache</a> comes in very handy. What it does, in a nutshell, is very quickly renders the tiles on the fly and them caches them so that the next time a request comes in asking for them, they&#8217;re already prepared. How, you ask? Well, it&#8217;s pretty simple actually. But first we need to take a step back and look at how to prepare the type of file that TileStache needs for input.</p>
+<p><strong>TileMill</strong></p>
+<p>By far the best application for working with map tiles is <a title="TileMill" href="http://mapbox.com/tilemill/" target="_blank">TileMill</a> which is an open source tool by MapBox for taking geospatial data and turning it into pretty map tiles. For the purposes of this demo, I&#8217;m not going to get too deep into the more advanced features but I encourage you to take a look. There are some pretty slick possibilities there.</p>
+<p>After you get it up and running and maybe kick the tires a bit to get familiar with what&#8217;s going on there, you can either point TileMill at the PostgreSQL database that you created for your GeoDjango project or you can just point it at the shapefiles that you used to load data into that database. I&#8217;m just gonna use the shapefiles because it&#8217;s a little quicker and cleaner. Before you do that, however, you need to prepare the shapefiles a bit so that TileMill will load them without a problem. This is how I did that:</p>
+<pre class="brush: bash; title: ; notranslate" title="">
+cd [directory where your shapefiles]
+shapeindex *.shp
+for i in *.shp
+&gt; zip `basname $i .shp` `basename $i shp`*;
+</pre>
+<p>If you grabbed the <a title="evz/demo on Github" href="https://github.com/evz/demo" target="_blank">Github repo</a> at the beginning, I&#8217;ve already done that for those files so you can skip that part. If not, you&#8217;ll need to have the GDAL libraries installed on whichever machine you run that command on.</p>
+<p>Again, I&#8217;m not going to get too into the nuances of designing your tile layers. I&#8217;m just going to stick with something very basic to demonstrate the principles here. This is the stylesheet I used for TileMill:</p>
+<pre class="brush: css; title: ; notranslate" title="">
+#counties {
+  polygon-opacity: 0;
+  line-width: 2;
+  line-color: #123456;
+  line-opacity: 0.4;
+  line-join: round;
+}
+</pre>
+<p>Now comes the fun part getting the tiles to render in TileStache and getting them back on to our map.</p>
+<p><strong>Setup TileStache</strong></p>
+<p>One of the formats that TileStache can use to style up your tiles is called Mapnik XML which, handily enough, TileMill provides for any project you start. When you&#8217;re looking at your project, just click the little wrench icon to the right of the breadcrumb menu at the top and then click &#8220;Mapnik XML&#8221; near the bottom of that dialog. This will generate an XML file and save it onto your local file system. </p>
+<p>Before we can put that into TileStache, there are a couple things you&#8217;ll need to know about setting up TileStache and making sure those XML files will work. First, for the purposes of this demo, I setup a separate VM that is running my tilestache instance. This, in a nutshell, is how I did that from a base Ubuntu 10.04 box (can&#8217;t remember why I chose that version but, hey):</p>
+<pre class="brush: bash; title: ; notranslate" title="">
+apt-get install python-software-properties
+add-apt-repository ppa:developmentseed/mapbox
+apt-get update
+apt-get install libmapnik2-dev
+apt-get install python-mapnik2
+cd /home/tiles/
+apt-get install python-virtualenv
+virtualenv .
+source bin/activate
+cd tilestache/
+pip install -r requirements.txt
+apt-get install nginx
+vi /etc/nginx/sites-enabled/tiles # added a reverse proxy for the app to serve it to my host box
+invoke-rc.d nginx restart
+gunicorn &quot;TileStache:WSGITileServer('configs/demo.cfg')&quot;
+</pre>
+<p>The tricky part there is using the <a title="Development Seed" href="http://developmentseed.org/" target="_blank">Development Seed</a> PPA to get an already built Mapnik2. Ubuntu is still on a older version by default. You&#8217;ll need the newer version in order to get TileStache to be able to read the XML files that TileMill produces, since they use a newer spec. The requirements file that I included in the <a title="evz/demo on Github" href="https://github.com/evz/demo" target="_blank">Github repo</a> includes <a title="Gunicorn" href="http://gunicorn.org/" target="_blank">Gunicorn</a> to handle the WSGI stuff and the last line of that code above is actually how you get TileStache running under Gunicorn. </p>
+<p>The three parts that TileStache needs to start cranking out files are the Mapnik XML that we got from TileMill, the actual data source (in this sample it&#8217;s just a shapefile) and a configuration file. This is the config file that I&#8217;m going to use for the counties layer:</p>
+<pre class="brush: jscript; title: ; notranslate" title="">
+{
+  &quot;cache&quot;:
+  {
+    &quot;name&quot;: &quot;Disk&quot;,
+    &quot;path&quot;: &quot;/home/tiles/stache&quot;,
+    &quot;umask&quot;: &quot;0000&quot;,
+    &quot;dirs&quot;: &quot;portable&quot;,
+  },
+  &quot;layers&quot;:
+  {
+    &quot;counties&quot;:
+    {
+        &quot;provider&quot;: {&quot;name&quot;: &quot;mapnik&quot;, &quot;mapfile&quot;: &quot;../styles/counties.xml&quot;},
+        &quot;projection&quot;: &quot;spherical mercator&quot;
+    }
+  }
+}
+</pre>
+<p>For this example, I&#8217;m using the simple on disk caching but there are a bunch of other things you can do with that. Needless to say, <a title="TileStache docs" href="http://tilestache.org/doc/" target="_blank">read the docs</a>. The other thing you&#8217;ll see there is that you have to point it at your Mapnik XML file. But before this will work, we have to clean it up so that it&#8217;ll work. </p>
+<p>The first thing is to get rid of the background color, if you set one in TileMill. It&#8217;s at the end of the first <code>Map</code> element in the file. The other thing to do is make sure that the XML file knows how to find your data source. There&#8217;s a <code>Parameter name="file"</code> tag in the XML that you&#8217;ll want to edit to point to where your shapefile is stored on the machine that is running TileStache. I&#8217;ve included a configuration file and a rendered version of the Mapnik XML in the tilestache folder within the Github repo so you should be pretty much ready to go for the next part.</p>
+<p><strong>Putting tiles on the map</strong></p>
+<p>After all that, Leaflet actually makes it pretty easy to put the tiles on the map:</p>
+<pre class="brush: jscript; title: ; notranslate" title="">
+    $(document).ready(function(){
+        var streets = new L.TileLayer('http://{s}.tile.cloudmade.com/[My API key]/998/256/{z}/{x}/{y}.png');
+        var counties = new L.TileLayer('http://tiles/counties/{z}/{x}/{y}.png');
+        var places = new L.TileLayer('http://tiles/places/{z}/{x}/{y}.png');
+        var bb = {{ bbox }};
+        var sw = new L.LatLng(bb[1], bb[0], true);
+        var ne = new L.LatLng(bb[3], bb[2], true);
+        var bbox = new L.LatLngBounds(sw,ne);
+        var map = new L.Map('map');
+	    map.addLayer(streets);
+	    map.addLayer(counties);
+        map.addLayer(places);
+        map.fitBounds(bbox);
+    });
+</pre>
+<p>Predictably, the new tile layers are loaded as <code>L.TileLayer</code>. I also prepared another layer in TileMill for the census places and added that into the TileStache config file so that I can load that layer here as well.</p>
+<p>This may seem like a step backwards but just bear with me. It&#8217;s gonna get interesting here in a minute.</p>
+<p><strong>Getting back the data and more interactivity</strong></p>
+<p>Using the tile layers to draw the boundaries of the shapes has one huge advantage over using polygons: performance. All the browser really needs to know how to do is load a bunch of images which it does pretty well. But, since they are just images, we lose our interactivity. Just as a quick aside, there is a way to to add interactivity directly to the tile layers but since TileStache doesn&#8217;t have that built in (yet), I&#8217;m not gonna cover it here. Interested? <a href="http://mapbox.com/mbtiles-spec/" title="MBTiles" target="_blank">Check it out (the interesting part is the part on the UTFGrid).</a>.</p>
+<p>First off, let&#8217;s add the ability to search this sucker. The simplest way to accomplish this is by leveraging <a href="http://code.google.com/apis/maps/documentation/geocoding/" title="Google GeoCoder" target="_blank">Google&#8217;s GeoCoder API</a>. If you&#8217;ve never used it before, think of it as the brains behind the Google&#8217;s map search, because that&#8217;s what it is. Give it an address or a fragment of an address and it gives you back geographic info about it. Multiple matches? No problem, it gives you the opportunity to clarify. Here&#8217;s how I implemented that in a Django view for the example project:</p>
+<pre class="brush: python; title: ; notranslate" title="">
+def map_search(request):
+    counties = County.objects.all()
+    places = Place.objects.all()
+    bbox = json.dumps(counties.extent())
+    if request.is_ajax():
+        q = request.GET['search']
+        goog = 'http://maps.googleapis.com/maps/api/geocode/json'
+        r = requests.get(goog, params={'address': q, 'sensor': 'false'});
+        resp = json.loads(r.content)
+        d = {'status': resp['status']}
+        if resp['status'] != 'OK':
+            d['message'] = 'Nothing was found matching your search. Please try again.'
+        elif len(resp['results']) &gt; 1:
+            clarify = []
+            for res in resp['results']:
+                clarify.append(res['formatted_address'])
+            d['status'] = 'MULTIPLE_MATCHES'
+            d['message'] = 'Did you mean one of these? Click the one you wanted to resubmit.'
+            d['clarify'] = clarify
+        else:
+            bounds = resp['results'][0]['geometry']['viewport']
+            bbox = (bounds['southwest']['lng'], bounds['southwest']['lat'], bounds['northeast']['lng'], bounds['northeast']['lat'])
+            bbox_poly = Polygon.from_bbox(bbox)
+            cnts = counties.filter(mpoly__bboverlaps=bbox_poly)
+            plcs = places.filter(mpoly__bboverlaps=bbox_poly)
+            c = []
+            p = []
+            for cnt in cnts.geojson():
+                geojson = json.loads(cnt.geojson)
+                geojson['properties'] = {
+                    'name': cnt.name_trans,
+                    'bbox': cnt.mpoly.extent,
+                    'center':cnt.mpoly.point_on_surface.coords
+                    }
+                geojson['id'] = cnt.geo_id
+                c.append(geojson)
+            d['counties'] = c
+            for plc in plcs.geojson():
+                geojson = json.loads(plc.geojson)
+                geojson['properties'] = {
+                    'name': plc.name_trans,
+                    'bbox': plc.mpoly.extent,
+                    'center':plc.mpoly.point_on_surface.coords
+                    }
+                geojson['id'] = plc.geo_id
+                p.append(geojson)
+            d['places'] = p
+        return HttpResponse(json.dumps(d), mimetype='application/json')
+    else:
+        return render_to_response('map-search.html', { 'bbox': bbox }, context_instance=RequestContext(request))
+</pre>
+<p>So, quick rundown of what&#8217;s going on here: First time the view gets hit, it just renders the template and adds the bounding box info back into the context so that we can set the zoom for the map. The next time (and subsequent times) it&#8217;s hit with an Ajax request, it takes the <code>search</code> parameter from the querystring and sends it over to Google&#8217;s Geocoder using the excellent <a href="http://docs.python-requests.org/en/latest/index.html" title="Python Requests" target="_blank">Python Requests</a> library. When it gets the response back, it parses it, finds the bounding box of the area in question (whether it&#8217;s a city or a zip code or whatever), then hits the GeoDjango database with this query <code>.filter(mpoly__bboverlaps=bbox_poly)</code> to find all the counties and places that fit within that bounding box (or, more precisely, overlap with that bounding box). There are a bunch of query filters that you can apply here that are pretty <a href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/geoquerysets/#spatial-lookups" title="GeoDjango - Spatial Lookups" target="_blank">verbosely documented</a> in the GeoDjango documentation. Needless to say, I&#8217;m intentionally casting a pretty wide net. Once it has all the matching geometries, this view then packages it up on a JSON object and returns it back to the client.</p>
+<p>Here&#8217;s what&#8217;s happening on the client side:</p>
+<pre class="brush: jscript; title: ; notranslate" title="">
+    var county_geo, place_geo, map, geojson, counties, places;
+    $(document).ready(function(){
+        var streets = new L.TileLayer('http://{s}.tile.cloudmade.com/bcf2471ca35f48a6a4e28a704ba64c9c/998/256/{z}/{x}/{y}.png');
+        counties = new L.TileLayer('http://tiles/counties/{z}/{x}/{y}.png');
+        places = new L.TileLayer('http://tiles/places/{z}/{x}/{y}.png');
+        var bb = {{ bbox }};
+        var sw = new L.LatLng(bb[1], bb[0], true);
+        var ne = new L.LatLng(bb[3], bb[2], true);
+        var bbox = new L.LatLngBounds(sw,ne);
+        map = new L.Map('map');
+	    map.addLayer(streets);
+	    map.addLayer(counties);
+        map.addLayer(places);
+        map.fitBounds(bbox);
+        $('#map-search').submit(function(){
+            var url = '{% url map-search %}';
+            var options = {
+                url: url,
+                success: parse_results,
+                resetForm: false
+            };
+            $(this).ajaxSubmit(options);
+            return false;
+        });
+        $('.result').live('click', function(){
+            var cl = $(this).attr('class').split(' ');
+            if (search_array(cl,'clarify')){
+                zoom_detail($(this).attr('id'), cl[1]);
+            }
+        });
+        $('.clarify').live('click', function(){
+            var params = {'search': $(this).text()}
+            $.getJSON('{% url map-search %}', params, function(data){
+                parse_results(data);
+            });
+        });
+        $('.layer-picker').click(function(){
+	        var selected = $(this).val();
+	        if ($(this).is(':checked')){
+	            map.addLayer(eval(selected));
+	        } else {
+	            map.removeLayer(eval(selected));
+	        }
+	    });
+    });
+    function parse_results(resp){
+        $('#counties').children().remove();
+        $('#places').children().remove();
+        $('#errors').children().remove();
+        if (resp['status'] != 'OK'){
+            var info = '&lt;p&gt;' + resp['message'] + '&lt;/p&gt;';
+            if (resp['status'] == 'MULTIPLE_MATCHES') {
+                $.each(resp['clarify'], function(key,val){
+                    info += '&lt;p class=&quot;result clarify&quot;&gt;' + val + '&lt;/p&gt;';
+                });
+            }
+            $('#errors').append(info);
+        } else {
+            county_geo = resp['counties'];
+            place_geo = resp['places'];
+            var counties = '&lt;h3&gt;County results&lt;/h3&gt;'
+            var places = '&lt;h3&gt;Place results&lt;/h3&gt;'
+            $.each(county_geo, function(key,val){
+                counties += '&lt;p id=&quot;' + val['id'] + '&quot; class=&quot;result county&quot;&gt;' + val['properties']['name'] + '&lt;/p&gt;';
+            });
+            $.each(place_geo, function(key,val){
+                places += '&lt;p id=&quot;' + val['id'] + '&quot; class=&quot;result place&quot;&gt;' + val['properties']['name'] + '&lt;/p&gt;';
+            });
+            $('#counties').append(counties);
+            $('#places').append(places);
+        }
+    }
+    function zoom_detail(id, cl){
+        var geo;
+        if (cl == 'place'){
+            geo = place_geo;
+        } else if (cl == 'county'){
+            geo = county_geo;
+        }
+        $.each(geo, function(key, val){
+            if (val['id'] == id){
+                if (geojson){
+                    map.removeLayer(geojson);
+                }
+                geojson = new L.GeoJSON();
+                var content = '&lt;h3&gt;'+val['properties']['name']+'&lt;/h3&gt;';
+                var popup = new L.Popup();
+                var point = new L.LatLng(val['properties']['center'][1],val['properties']['center'][0]);
+                popup.setLatLng(point);
+                popup.setContent(content);
+                geojson.addGeoJSON(val);
+                map.addLayer(geojson);
+                var bb = val['properties']['bbox'];
+                var sw = new L.LatLng(bb[1], bb[0], true);
+                var ne = new L.LatLng(bb[3], bb[2], true);
+                var bbox = new L.LatLngBounds(sw,ne);
+                map.fitBounds(bbox);
+                map.openPopup(popup);
+            }
+        });
+    }
+    function search_array(arr, obj){
+        return (arr.indexOf(obj) == -1);
+    }
+</pre>
+<p>Another quick rundown: All the normal stuff at the top to initialize the map, including the new tile layers that we made. The next little bit is using a <a href="http://jquery.malsup.com/form/" title="jQuery forms" target="_blank">jQuery forms plugin</a> to submit the search query from a form field on the template to the view and handle the response that comes back. When the response comes back from the view (which is the JSON object that I referenced earlier) it gets parsed by the <code>parse_results</code> function. If there is some need for clarity (basically if your search returns more than one hit), you get back a list of possibilities and by clicking on one, it resubmits the form and tries again. Once you&#8217;ve only got one possibility, you get back the list of counties and places that match your query and by clicking on one, the map zooms to that area and puts a little popup over it with the place or county name in it. </p>
+<p>Still, besides a pretty decent performance boost, we&#8217;re not to much farther than we were before. Now&#8217;s the time to start bringing the data.</p>
+<p><strong>Add some data to your map</strong></p>
+<p>For this example, I&#8217;m going to add some census data to the little popups using <a href="http://census.ire.org/" title="Census data from IRE" target="_blank">an API</a> that was built by the <a href="http://www.ire.org/" title="Investigative Reporters and Editors" target="_blank">Investigative Reporters and Editors</a> organization in partnership with a bunch of other folks. Luckily for us, we can leverage it pretty easily on the client side. As a quick aside, there are tons of tools on the <a href="http://census.ire.org/" title="Census data from IRE" target="_blank">census.ire.org</a> site for analyzing and sharing census data. Check it out if you&#8217;re into that.</p>
+<p>Diving right in, here is the client side code that I added to the last example to get the total population of each area to show up in the little bubble along with the name of the place or county:</p>
+<pre class="brush: jscript; title: ; notranslate" title="">
+var census_data = {};
+$(document).ready(function(){
+    //...(snip)...
+});
+function parse_results(resp){
+    //...(skip a bit)...
+    if (resp['status'] != 'OK'){
+        //...(snip)...
+    } else {
+        //...(snip)...
+        $.each(county_geo, function(key,val){
+            fetch_data(val['id'], census);
+            counties += '&lt;p id=&quot;' + val['id'] + '&quot; class=&quot;result county&quot;&gt;' + val['properties']['name'] + '&lt;/p&gt;';
+        });
+        $.each(place_geo, function(key,val){
+            fetch_data(val['id'], census);
+            places += '&lt;p id=&quot;' + val['id'] + '&quot; class=&quot;result place&quot;&gt;' + val['properties']['name'] + '&lt;/p&gt;';
+        });
+        // ...(snip)...
+    }
+}
+function fetch_data(geoid, handler){
+    var callback = 'geoid_' + geoid;
+    var url = 'http://censusdata.ire.org/' + geoid.substr(0,2) + '/' + geoid + '.jsonp';
+    $.ajax(url,{
+        dataType: &quot;jsonp&quot;,
+        jsonpCallback: callback,
+        success: census
+    })
+}
+function census(data){
+    census_data[data['geoid']] = data;
+}
+function zoom_detail(id, cl){
+    //...(snip)...
+    $.each(geo, function(key, val){
+        //...(snip)
+        var content = '&lt;h3&gt;'+val['properties']['name']+'&lt;/h3&gt;';
+        content += &quot;&lt;p&gt;The 2010 population of &quot;+ census_data[val['id']]['metadata']['NAME'] + &quot; was &quot; + census_data[val['id']]['data']['2010']['P1']['P001001'] + &quot;.&lt;/p&gt;&quot;;
+        //...(snip)...
+
+    }
+}
+</pre>
+<p>All that I&#8217;ve added here is a function that saves the census data about the search results into a global variable that is then used to populate the popup bubble when a user clicks to view the detail of a particular area. And, really, this is just scratching the surface of what&#8217;s available through <a href="http://census.ire.org" title="Census data from IRE" target="_blank">that census API</a>. If you dig a bit deeper into that site, you&#8217;ll see that every scrap of census data is available in the JSON response that you are getting. </p>
+<p>Taking a step back, I&#8217;m hoping you&#8217;re eyes are kind of getting wide and you&#8217;re starting to see the potential here. In this example, I just used the <code>geoid</code> to get census data but if you don&#8217;t have that and just have geospatial data, you can leverage something like the Chicago Tribune&#8217;s <a href="http://boundaries.tribapps.com/#api" title="Chicago Tribune Boundary Service API" target="_blank">Boundary Service API</a> to get those ids (and even the boundary data itself). </p>
+<p><strong>Conclusions?</strong></p>
+<p>The purpose of this post (and the accompanying presentation that I&#8217;m going to give tonight at the <a href="http://www.facebook.com/event.php?eid=267220009989198" title="Chicago Djangonauts - November meeting" target="_blank">Chicago Djangonauts</a> meeting) is to just demonstrate some of the tools that are out there and really just to get you thinking about what&#8217;s possible. The samples here are by no means a working, production ready application but hopefully just something to get your mind going.</p>
+				</div>
+						<div class="post-metadata">
+				<p><strong>Date:</strong> <a href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/" rel="bookmark" title="Permanent Link to Mapping tools 101: A few things I&#8217;ve picked up">October 29th, 2011</a> | <strong>Comments:</strong> <a href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/#respond/" title="Comment on Mapping tools 101: A few things I&#8217;ve picked up"><span class="dsq-postid" rel="58 http://www.static-eric.com/?p=58">No Comments &#187;</span></a></p>
+				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a>, <a href="http://www.static-eric.com/category/maps/" title="View all posts in Maps" rel="category tag">Maps</a></p>
+				<p><strong>Tags:</strong> <a href="http://www.static-eric.com/tag/census/" rel="tag">Census</a>, <a href="http://www.static-eric.com/tag/javascript/" rel="tag">Javascript</a>, <a href="http://www.static-eric.com/tag/leaflet/" rel="tag">Leaflet</a>, <a href="http://www.static-eric.com/tag/maps/" rel="tag">Maps</a>, <a href="http://www.static-eric.com/tag/python/" rel="tag">Python</a>, <a href="http://www.static-eric.com/tag/tilemill/" rel="tag">TileMill</a>, <a href="http://www.static-eric.com/tag/tilestache/" rel="tag">TileStache</a></p>			</div>
+		</div>
+	
 			<div id="post-45" class="post-45 post type-post status-publish format-standard hentry category-code category-how-tos tag-google-appengine tag-javascript tag-jquery tag-python">
 									<h2 class="posttitle"><a href="http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/" rel="bookmark" title="Permanent Link to Making search possible on a static site">Making search possible on a static site</a></h2>
 			<div class="post-author">written by: Eric</div>
@@ -185,7 +654,7 @@ handlers:
 				</div>
 						<div class="post-metadata">
 				<p><strong>Date:</strong> <a href="http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/" rel="bookmark" title="Permanent Link to Making search possible on a static site">October 27th, 2011</a> | <strong>Comments:</strong> <a href="http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/#respond/" title="Comment on Making search possible on a static site"><span class="dsq-postid" rel="45 http://www.static-eric.com/?p=45">No Comments &#187;</span></a></p>
-				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/code/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a></p>
+				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a></p>
 				<p><strong>Tags:</strong> <a href="http://www.static-eric.com/tag/google-appengine/" rel="tag">Google AppEngine</a>, <a href="http://www.static-eric.com/tag/javascript/" rel="tag">Javascript</a>, <a href="http://www.static-eric.com/tag/jquery/" rel="tag">jQuery</a>, <a href="http://www.static-eric.com/tag/python/" rel="tag">Python</a></p>			</div>
 		</div>
 	
@@ -235,7 +704,7 @@ python manage.py runserver
 				</div>
 						<div class="post-metadata">
 				<p><strong>Date:</strong> <a href="http://www.static-eric.com/2011/10/24/2010-census-getting-setup/" rel="bookmark" title="Permanent Link to 2010 Census: Getting setup">October 24th, 2011</a> | <strong>Comments:</strong> <a href="http://www.static-eric.com/2011/10/24/2010-census-getting-setup/#respond/" title="Comment on 2010 Census: Getting setup"><span class="dsq-postid" rel="39 http://www.static-eric.com/?p=39">No Comments &#187;</span></a></p>
-				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/code/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a></p>
+				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a></p>
 				<p><strong>Tags:</strong> <a href="http://www.static-eric.com/tag/census/" rel="tag">Census</a>, <a href="http://www.static-eric.com/tag/setup/" rel="tag">Setup</a></p>			</div>
 		</div>
 	
@@ -299,7 +768,7 @@ static_dir: '/'</pre>
 				</div>
 						<div class="post-metadata">
 				<p><strong>Date:</strong> <a href="http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/" rel="bookmark" title="Permanent Link to OMG FREE HOSTING: An homage to Harper Reed">October 22nd, 2011</a> | <strong>Comments:</strong> <a href="http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/#respond/" title="Comment on OMG FREE HOSTING: An homage to Harper Reed"><span class="dsq-postid" rel="4 http://www.static-eric.com/?p=4">No Comments &#187;</span></a></p>
-				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/code/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a></p>
+				<p><strong>Category:</strong> <a href="http://www.static-eric.com/category/code/" title="View all posts in Code" rel="category tag">Code</a>, <a href="http://www.static-eric.com/category/how-tos/" title="View all posts in How-Tos" rel="category tag">How-Tos</a></p>
 				<p><strong>Tags:</strong> <a href="http://www.static-eric.com/tag/drydrop/" rel="tag">DryDrop</a>, <a href="http://www.static-eric.com/tag/google-appengine/" rel="tag">Google AppEngine</a>, <a href="http://www.static-eric.com/tag/static/" rel="tag">Static</a>, <a href="http://www.static-eric.com/tag/wordpress/" rel="tag">Wordpress</a></p>			</div>
 		</div>
 	    <script type="text/javascript">
@@ -341,9 +810,10 @@ static_dir: '/'</pre>
 <script type='text/javascript' src='http://www.static-eric.com/wp-content/themes/tabula-rosa/js/fancybox_settings.js?ver=1.0'></script>
 <script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shCore.js?ver=3.0.83c'></script>
 <script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushPython.js?ver=3.0.83c'></script>
-<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushXml.js?ver=3.0.83c'></script>
 <script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushJScript.js?ver=3.0.83c'></script>
 <script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushBash.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushCss.js?ver=3.0.83c'></script>
+<script type='text/javascript' src='http://www.static-eric.com/wp-content/plugins/syntaxhighlighter/syntaxhighlighter3/scripts/shBrushXml.js?ver=3.0.83c'></script>
 <script type='text/javascript'>
 	(function(){
 		var corecss = document.createElement('link');

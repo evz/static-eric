@@ -1,38 +1,44 @@
-<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://static/wordpress/wp-content/plugins/google-sitemap-generator/sitemap.xsl"?><!-- generator="wordpress/3.2.1" -->
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://www.static-eric.com/wp-content/plugins/google-sitemap-generator/sitemap.xsl"?><!-- generator="wordpress/3.2.1" -->
 <!-- sitemap-generator-url="http://www.arnebrachhold.de" sitemap-generator-version="3.2.6" -->
-<!-- generated-on="October 27, 2011 3:34 pm" -->
+<!-- generated-on="November 2, 2011 1:30 pm" -->
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">	<url>
-		<loc>http://static/wordpress/</loc>
-		<lastmod>2011-10-27T15:33:32+00:00</lastmod>
+		<loc>http://www.static-eric.com/</loc>
+		<lastmod>2011-11-02T13:29:31+00:00</lastmod>
 		<changefreq>daily</changefreq>
 		<priority>1.0</priority>
 	</url>
 	<url>
-		<loc>http://static/wordpress/2011/10/27/making-search-possible-on-a-static-site/</loc>
-		<lastmod>2011-10-27T15:33:32+00:00</lastmod>
+		<loc>http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/</loc>
+		<lastmod>2011-11-02T13:29:31+00:00</lastmod>
 		<changefreq>monthly</changefreq>
 		<priority>0.2</priority>
 	</url>
 	<url>
-		<loc>http://static/wordpress/2011/10/24/2010-census-getting-setup/</loc>
+		<loc>http://www.static-eric.com/2011/10/27/making-search-possible-on-a-static-site/</loc>
+		<lastmod>2011-10-27T15:34:41+00:00</lastmod>
+		<changefreq>monthly</changefreq>
+		<priority>0.2</priority>
+	</url>
+	<url>
+		<loc>http://www.static-eric.com/2011/10/24/2010-census-getting-setup/</loc>
 		<lastmod>2011-10-24T13:16:10+00:00</lastmod>
 		<changefreq>monthly</changefreq>
 		<priority>0.2</priority>
 	</url>
 	<url>
-		<loc>http://static/wordpress/2011/10/23/2010-census-leveraging-whats-already-been-done/</loc>
+		<loc>http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/</loc>
 		<lastmod>2011-10-24T12:47:59+00:00</lastmod>
 		<changefreq>monthly</changefreq>
 		<priority>0.2</priority>
 	</url>
 	<url>
-		<loc>http://static/wordpress/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/</loc>
+		<loc>http://www.static-eric.com/2011/10/22/omg-free-hosting-an-homage-to-harper-reed/</loc>
 		<lastmod>2011-10-23T18:26:59+00:00</lastmod>
 		<changefreq>monthly</changefreq>
 		<priority>0.2</priority>
 	</url>
 	<url>
-		<loc>http://static/wordpress/about-this-site/</loc>
+		<loc>http://www.static-eric.com/about-this-site/</loc>
 		<lastmod>2011-10-23T18:26:34+00:00</lastmod>
 		<changefreq>weekly</changefreq>
 		<priority>0.6</priority>
