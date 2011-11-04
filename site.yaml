@@ -24,7 +24,7 @@ handlers:
   static_files: \1/feed.xml
   upload: .*/feed\.xml
 - url: /feed/
-  static_files: /feed/feed.xml
+  static_files: /feed.xml
   upload: /feed/feed\.xml
 - url: '/'
   static_files: 'index.html'
