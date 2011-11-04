@@ -11,6 +11,21 @@ handlers:
 - url: /(.*)/
   static_files: \1/index.html
   upload: .*/index\.html
+- url: /(.*)/(.*)/(.*)/(.*)/feed/
+  static_files: \1/\2/\3/\4/feed/feed.xml
+  upload: .*/.*/.*/.*/feed/feed\.xml
+- url: /(.*)/(.*)/(.*)/feed/
+  static_files: \1/\2/\3/feed.xml
+  upload: .*/.*/.*/feed/feed\.xml
+- url: /(.*)/(.*)/feed/
+  static_files: \1/\2/feed.xml
+  upload: .*/.*/feed/feed\.xml
+- url: /(.*)/feed/
+  static_files: \1/feed.xml
+  upload: .*/feed\.xml
+- url: /feed/
+  static_files: /feed/feed.xml
+  upload: /feed/feed.xml
 - url: '/'
   static_files: 'index.html'
   upload: '.*'
