@@ -13,11 +13,343 @@
 	<atom:link href="http://www.static-eric.com/feed/" rel="self" type="application/rss+xml" />
 	<link>http://www.static-eric.com</link>
 	<description></description>
-	<lastBuildDate>Wed, 02 Nov 2011 13:29:31 +0000</lastBuildDate>
+	<lastBuildDate>Sun, 13 Nov 2011 23:52:18 +0000</lastBuildDate>
 	<language>en</language>
 	<sy:updatePeriod>hourly</sy:updatePeriod>
 	<sy:updateFrequency>1</sy:updateFrequency>
 	<generator>http://wordpress.org/?v=3.2.1</generator>
+		<item>
+		<title>2010 Census: A pain in my block</title>
+		<link>http://www.static-eric.com/2011/11/13/2010-census-a-pain-in-my-block/</link>
+		<comments>http://www.static-eric.com/2011/11/13/2010-census-a-pain-in-my-block/#comments</comments>
+		<pubDate>Sun, 13 Nov 2011 23:52:18 +0000</pubDate>
+		<dc:creator>Eric</dc:creator>
+				<category><![CDATA[Code]]></category>
+		<category><![CDATA[How-Tos]]></category>
+		<category><![CDATA[Baha'is]]></category>
+		<category><![CDATA[Census]]></category>
+		<category><![CDATA[Maps]]></category>
+		<category><![CDATA[Python]]></category>
+
+		<guid isPermaLink="false">http://www.static-eric.com/?p=108</guid>
+		<description><![CDATA[I&#8217;ve written about my very limited exploits in exploring and leveraging 2010 census data in the past but this weekend I finally got back around to doing something about it. What I ended up with is looking like a pretty useful tool for anyone looking at projecting census data onto arbitrary geometries. A quick recap ... <a href="http://www.static-eric.com/2011/11/13/2010-census-a-pain-in-my-block/">Continue Reading</a>]]></description>
+			<content:encoded><![CDATA[<p>I&#8217;ve written about my very limited exploits in exploring and leveraging 2010 census data in the past but this weekend I finally got back around to doing something about it. What I ended up with is looking like a pretty useful tool for anyone looking at projecting census data onto arbitrary geometries.</p>
+<p><strong>A quick recap</strong><br />
+For those who didn&#8217;t read the first <a href="http://www.static-eric.com/2011/10/23/2010-census-leveraging-whats-already-been-done/" title="2010 Census: Leveraging what’s already been done" target="_blank">couple</a> <a href="http://www.static-eric.com/2011/10/24/2010-census-getting-setup/" title="2010 Census: Getting setup" target="_blank">posts</a> I wrote about the reasoning behind why I&#8217;m going through all this trouble in the first place, here&#8217;s the story so far: </p>
+<p>I work for the <a href="http://www.bahai.us" title="Baha'i Faith" target="_blank">Bahá&#8217;í Faith</a>. The administration of Bahá&#8217;í communities across the continental United States is broken down into what we call Bahá&#8217;í Localities. These can sometimes be mapped one-to-one onto an existing geography, such as a municipal boundary or a county but often times are combinations or subdivisions of those areas. Which makes the task of projecting census data onto them somewhat tricky. After I wrote about getting the census.ire.org Django project setup on my local VM, I got a Twitter shout out from <a href="http://blog.germuska.com" title="Joe Germuska" target="_blank">Joe Germuska</a> over at the <a href="http://blog.apps.chicagotribune.com/" title="Chicago Tribune News Apps Blog" target="_blank">Chicago Tribune</a> suggesting that I take a look at trying to build my shapes out of the basic kernel of all census shapes: the block. So, in case the title of this post doesn&#8217;t give that away, that&#8217;s what I did.</p>
+<p><strong>Re-purposing guts of the IRE app</strong><br />
+Once I got the <a href="https://github.com/ireapps/census" title="IRE census project on Github" target="_blank">census.ire.org project</a> setup I kinda sat back at said to myself, &#8220;uh, OK, now what&#8230;&#8221;. My first approach was actually to forget about all the juicy goodness in there and try to just get what I needed from the API that they offer. Problem is, block level data is not available through the API (which I suppose is understandable given that there are like, 8,000,000 of them).  </p>
+<p>Since no one else had the data, it was starting to look like I would have to build it myself (*gulp*). In reading the docs for the IRE Django app, the parts that intrigued me the most were the parts that actually fetched census data and loaded it someplace. The someplace, in their case, was a MongoDB database which, at the end of the day, got dumped out and turned into flat JSONP files which were then uploaded to an S3 bucket so that schmoes like me could access it through the API. Problem with that, at least for me, was that I needed some way of comparing my arbitrary shapes with the census block shapes. What I needed, in a nutshell, was a PostGIS database. Luck for me, <a href="http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/" title="Mapping tools 101: A few things I’ve picked up" target="_blank">I&#8217;ve done that before</a>. </p>
+<p>So, what it came down to for me was to basically take what they were doing, rip out the MongoDB parts, put in PostgreSQL parts, and run some spatial lookups. Easy, right? Well, yeah but really, really boring.</p>
+<p><strong>Before the boring part, the code</strong><br />
+OK, now we&#8217;ll get into the meaty part where I show you what I did. My basic approach, like the IRE app, was to write a series of scripts which actually executed the various steps in the process. The real brains of what&#8217;s going on is directly cribbed from the IRE app so I&#8217;d literally be nowhere without them. If you&#8217;re interested in seeing what they did before going any further, the hub round which everything else revolves is called batch_sf.sh and lives <a href="https://github.com/ireapps/census/tree/master/dataprocessing" title="IRE Census app on Github" target="_blank">here</a>.</p>
+<p>The basic steps I came up with were slightly different than the ones that IRE uses because of a few things: all I wanted was block level data, I needed to know what area on the surface of the Earth the census data related to, and because I didn&#8217;t need to get all the census tables (I cherry picked 14 that seemed to be what I was after). Those steps, in order are:</p>
+<ul>
+<li>Load the block level geospatial data into a PostGIS database</li>
+<li>Fetch the census data, generate the table headers and save it as CSV</li>
+<li>Create a cross reference table that will allow us to relate GIS data to census data</li>
+<li>Load the block level census data into already prepared Django models for the 14 tables that I wanted</li>
+<li>Finally, make the spatial relations between my arbitrary geographies and census blocks</li>
+</ul>
+<p>One word of caution before doing any of this stuff: working with block level data takes a huge amount of patience. When I got my batch script working, I ran it against Connecticut and it took 7 hours to complete. And that&#8217;s one of the small states with only 67,000+ census blocks. Illinois has something like 450,000+ census blocks so the scale here gets pretty astronomical pretty fast. When I get the final wrinkles ironed out, the next phase will probably involve setting this stuff up on a cloud server, just letting it crank and then coming up with a way of serializing the output into something that I can use without ever having to run this stuff again until the 2020 census.</p>
+<p><strong>Load GIS data</strong><br />
+This was actually remarkably simple thanks to the <a href="https://docs.djangoproject.com/en/1.3/ref/contrib/gis/layermapping/" title="GeoDjango LayerMapping" target="_blank">GeoDjango LayerMapping tool</a>. All it took was getting the data from <a href="http://www2.census.gov/geo/tiger/TIGER2010/TABBLOCK/2010/" title="Block level GIS data" target="_blank">here</a> and stuff it into a Django model. Here&#8217;s the model I went with:</p>
+<pre class="brush: python; title: ; notranslate">
+class CensusBlock(models.Model):
+    locality = models.ForeignKey(Locality, null=True)
+    xref = models.ForeignKey(XRef, null=True)
+    state_fips = models.CharField(max_length=2)
+    county_fips = models.CharField(max_length=3)
+    tract_code = models.CharField(max_length=6)
+    block_number = models.CharField(max_length=4)
+    geo_id = models.CharField(max_length=15)
+    name = models.CharField(max_length=10)
+    feat_code = models.CharField(max_length=5)
+    land_area = models.IntegerField()
+    water_area = models.IntegerField()
+    internal_lat = models.CharField(max_length=11)
+    internal_lon = models.CharField(max_length=12)
+    mpoly = models.MultiPolygonField('Block area', srid=4326)
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        return u'%s, (%s)' % (self.name, self.geo_id)
+</pre>
+<p>The <code>locality</code> field is a <code>ForeignKey</code> to the model where I store the Bahá&#8217;í localities (my arbitrary geographies). The <code>xref</code> field is a ForeignKey to a cross reference table that, at least while it&#8217;s loading, gives us the ability to relate a place on the surface of the earth to the number of people that live there. Other than that, it&#8217;s pretty much a one-to-one mapping of the GIS data that you get from the Census Bureau. Here&#8217;s my LayerMapping script:</p>
+<pre class="brush: python; title: ; notranslate">
+#!/bin/env python
+
+# All this stuff is just the normal dance you do to get the environment setup for Django to work
+import sys
+import site
+import os
+vepath = '/home/wdo/sites/my.bahai.us/lib/python2.6/site-packages'
+prev_sys_path = list(sys.path)
+
+site.addsitedir(vepath)
+sys.path.append('/home/wdo/sites/my.bahai.us/checkouts/mybahai')
+sys.path.append('/home/wdo/sites/my.bahai.us/checkouts')
+
+new_sys_path = [p for p in sys.path if p not in prev_sys_path]
+for item in new_sys_path:
+    sys.path.remove(item)
+sys.path[:0] = new_sys_path
+
+os.environ['DJANGO_SETTINGS_MODULE'] = 'mybahai.settings'
+
+from psycopg2 import IntegrityError
+
+from django.contrib.gis.utils import mapping, LayerMapping, add_postgis_srs
+from mybahai.census.models import CensusBlock
+from django.conf import settings
+
+if len(sys.argv) &lt; 2:
+    sys.exit('You must provide the state name of the block data you want to load an argument to this script.')
+
+STATE = sys.argv[1]
+
+try:
+    add_postgis_srs(900913)
+except IntegrityError:
+    print &quot;The Google Spherical Mercator projection, or a projection with srid 900913, already exists, skipping insert&quot;
+
+census_shp = os.path.join(settings.PROJECT_PATH,'census/scripts/data/tl_2010_' + STATE + '_tabblock10/tl_2010_' + STATE + '_tabblock10.shp')
+
+census_mapping = {
+    'state_fips': 'STATEFP10',
+    'county_fips': 'COUNTYFP10',
+    'tract_code': 'TRACTCE10',
+    'block_number': 'BLOCKCE10',
+    'geo_id': 'GEOID10',
+    'name': 'NAME10',
+    'feat_code': 'MTFCC10',
+    'land_area': 'ALAND10',
+    'water_area': 'AWATER10',
+    'internal_lat': 'INTPTLAT10',
+    'internal_lon': 'INTPTLON10',
+    'mpoly': 'MULTIPOLYGON',
+
+}
+
+census_layer = LayerMapping(CensusBlock,
+                      census_shp,
+                      census_mapping,
+                      transform=False,
+                      encoding='iso-8859-1')
+
+census_layer.save(verbose=False, strict=True, progress=True)
+</pre>
+<p>As I mentioned above, this is something that can take an insane amount of time to complete. If you&#8217;re having trouble getting it to finish the whole job, the LayerMapping tool does support passing a <code>fid_range</code> keyword argument into the <code>.save()</code> method with a tuple containing the indexes of the first and last features you want to load. That gives you a way of resuming should something get frozen or die on you. On a test run, I was able to load all 450,000+ shapes for the state of Illinois into my Ubuntu VMs with relatively limited resources (512MB RAM for app server and 1024MB RAM for db server) on my Intel i5 MacBook Pro and it completed it. Eventually. It helps if you don&#8217;t watch.</p>
+<p><strong>Fetching census data</strong><br />
+This part is basically grabs the raw data from the Census Bureau and does some basic cleanup and generates the table headers (using <a href="https://github.com/ireapps/census/blob/master/dataprocessing/make_sf_data_2010_headers.py" title="Making 2010 census table headers" target="_blank">this script</a> from IRE) so that the next step is easier. I pretty much directly ripped this part off from <a href="https://github.com/ireapps/census/blob/master/dataprocessing/fetch_sf_data_2010.sh" title="Fetch 2010 data script" target="_blank">this script</a> from within the IRE project. Hey, they told me to <a href="http://blog.apps.chicagotribune.com/2011/10/19/steal-this-code-presentation-to-hackshackers-opengovchicago/" title="Steal this code: News Apps Blog" target="_blank">steal it</a>. One thing I want to point out from within that file is the last line:</p>
+<pre class="brush: bash; title: ; notranslate">
+in2csv -e &quot;latin-1&quot; -f fixed -s ${DATAPROCESSING_DIR}/census2010_geo_schema.csv ${STATE_NAME_ABBR}geo2010.sf1 &gt; ${STATE_NAME_ABBR}geo2010.csv
+</pre>
+<p>This leverages the ever useful <a href="https://github.com/onyxfish/csvkit" title="CSVKit on Github" target="_blank">csvkit</a> to take the census2010_geo_schema.csv file and add it as a header to the data that comes with the census data about the actual geographic areas that are part of the census data file you downloaded in the first part of the script. This becomes kind of the lynchpin when we get to the part where we&#8217;re loading the census numbers data into Django models.  </p>
+<p><strong>Make cross reference table</strong><br />
+The Census Bureau provides the census data in what I consider to be relatively cryptic form. I suppose it&#8217;s all in the interest of making it portable and platform agnostic but for me it was somewhat of a headache to make heads or tails of what was going on there. Again, if it weren&#8217;t for the work put in on the IRE project, I would be nowhere.</p>
+<p>The first part of the headache was trying to relate the geospatial data that we&#8217;ve already loaded to the census data that we&#8217;re about to load so that when you query a place, you know how many people live there. The way this was accomplished by the IRE project was by building sort of a throw away cross reference relation that both the GIS data and the census data have in common. Which is trickier than it sounds for reasons that are totally unknown to me (this seems like such a no-brainer&#8230;). Since MongoDB is a non-rel database, the process that the IRE project had to go through to make the relation involved making a key for both a geography object that a census object would have in common with it and then looking for it when you&#8217;re loading the census data up. My approach was to build a table that each geography would have a ForeignKey to and then looking up that geography using that relation when I loaded the census data. It has pretty much the same effect as the IRE approach only it&#8217;s relational rather than non-relational. Anyways, here&#8217;s the code I used to make the cross reference table:</p>
+<pre class="brush: python; title: ; notranslate">
+#!/usr/bin/env python
+
+import sys
+import site
+import os
+import json
+
+from csvkit.unicsv import UnicodeCSVReader
+
+import config
+import utils
+
+... Normal Django environment setup goes here ...
+
+from mybahai.census.models import CensusBlock, XRef
+
+if len(sys.argv) &lt; 2:
+    sys.exit('You must provide the filename of a CSV as an argument to this script.')
+
+FILENAME = sys.argv[1]
+
+def make_xref(d):
+    # Strip off unncessary attrs
+    d.pop('CHARITER')
+    d.pop('CIFSN')
+    x, created = XRef.objects.get_or_create(fileid=d.pop('FILEID'), stusab=d.pop('STUSAB'), logrecno=d.pop('LOGRECNO'))
+    return x
+
+with open(FILENAME) as f:
+    rows = UnicodeCSVReader(f)
+    headers = rows.next()
+
+    for row in rows:
+
+        geography = {}
+        row_dict = dict(zip(headers, row))
+
+        if row_dict['SUMLEV'] not in config.SUMLEVS:
+            continue
+
+        # Ignore that is not for complete geographies
+        if row_dict['GEOCOMP'] != config.GEOCOMP_COMPLETE:
+            continue
+
+        geography['sumlev'] = row_dict.pop('SUMLEV')
+        geography['geoid'] = utils.GEOID_COMPUTERS[geography['sumlev']](row_dict)
+
+        xref = make_xref(row_dict)
+        block = CensusBlock.objects.get(geo_id=geography['geoid'])
+        block.xref = xref
+        block.save()
+</pre>
+<p>The crux of what&#8217;s going on here is that it&#8217;s taking the <code>[state abbrv]geo2010.csv</code> file that you created in step two, going through it row by row, creating a cross reference based upon part the <code>FILEID</code>, (which is basically the same for all of these since we&#8217;re just using the <a href="http://www2.census.gov/census_2010/04-Summary_File_1/" title="Census Data Summary File - raw data" target="_blank">census summary file</a>) the <code>STUSAB</code> (which is a state level identifier) and the <code>LOGRECNO</code> which is basically an index number for the entry in question. We&#8217;re then associating that with a particular census block based upon it&#8217;s <code>geoid</code>. That&#8217;s basically a concatenation of the various <a href="http://en.wikipedia.org/wiki/Federal_Information_Processing_Standard" title="FIPS on Wikipedia" target="_blank">FIPS</a> codes of the areas that contain that block plus the block number. </p>
+<p>One thing to note is that this script uses to external modules for some of it&#8217;s functionality <code>config</code> and <code>utils</code>. In my implementation, these are pretty much straight copies of <a href="https://github.com/ireapps/census/blob/master/dataprocessing/config.py" title="IRE dataprocessing config file" target="_blank">this</a> and <a href="https://github.com/ireapps/census/blob/master/dataprocessing/utils.py" title="IRE dataprocessing utils file" target="_blank">this</a>, respectively. I&#8217;m not using everything in there since some of it has to do with the MongoDB parts.</p>
+<p>The part that makes a huge difference (and took me a fair bit of time to figure out) was to enable the block <code>SUMLEV</code> in the <code>config</code> file (this is what that <code>if row_dict['SUMLEV'] not in config.SUMLEVS</code> bit up there is all about). When you get the code from the IRE Github repo, it&#8217;s not turned on by default (which is understandable). To do that, you just need to add it to <code>SUMLEVS</code> list on line 16. For good measure, I also turned all the other ones off so I wouldn&#8217;t be loading data that I wasn&#8217;t going to be using.</p>
+<p><strong>Actually loading the census counts</strong><br />
+Now that we&#8217;ve made it possible to cross reference the census data with the geospatial data, let&#8217;s load it up. Just so you know what we&#8217;re working with, the SF1 (Summary File 1) data that we&#8217;re loading here is broken down into 300+ tables which are divided amongst the 47 files we downloaded in step to. You can see the extensive (and rather nitpicky) nature of what that looks like in the census.ire.org app (<a href="http://census.ire.org/data/1714000.html" title="Chicago census data" target="_blank">here&#8217;s Chicago</a>). Since I&#8217;m really only after 14 of these tables, I only built models to house 14 of them. Here&#8217;s a sample (putting the whole thing here would just be silly):</p>
+<pre class="brush: python; title: ; notranslate">
+class P1(models.Model):
+    geo_id = models.CharField(max_length=15, primary_key=True)
+    p001001 = models.IntegerField()
+
+    def __unicode_(self):
+        return 'Total Population'
+
+class P3(models.Model):
+    geo_id = models.CharField(max_length=15, primary_key=True)
+    p003001 = models.IntegerField()
+    p003002 = models.IntegerField()
+    p003003 = models.IntegerField()
+    p003004 = models.IntegerField()
+    p003005 = models.IntegerField()
+    p003006 = models.IntegerField()
+    p003007 = models.IntegerField()
+    p003008 = models.IntegerField()
+
+    def __unicode_(self):
+        return 'Race %s' % self.geo_id
+
+... etc ...
+</pre>
+<p>The script used to load data into these is, again, based heavily upon what was already in the IRE project, just with the MongoDB parts taken out and the PostGIS parts put in. Here&#8217;s what that looks like:</p>
+<pre class="brush: python; title: ; notranslate">
+#!/bin/env python
+import sys
+import site
+import os
+import json
+
+... Normal Django environment setup ...
+
+from mybahai.census.models import *
+import sys
+from csvkit.unicsv import UnicodeCSVReader
+import utils
+import config
+
+if len(sys.argv) &lt; 2:
+    sys.exit('You must provide the filename of a CSV as an argument to this script.')
+
+FILENAME = sys.argv[1]
+
+GET_CENSUS_TABLE = {
+    'P1' : P1,
+    'P3': P3,
+... bunch more keys related to Django models for census tables ...
+}
+
+with open(FILENAME) as f:
+    rows = UnicodeCSVReader(f)
+    headers = rows.next()
+
+    for row in rows:
+        row_dict = dict(zip(headers, row))
+
+        try:
+            x = XRef.objects.get(fileid=row_dict['FILEID'], stusab=row_dict['STUSAB'], logrecno=row_dict['LOGRECNO'])
+        except XRef.DoesNotExist:
+            continue
+        block = CensusBlock.objects.get(xref=x)
+
+        geo_id = block.geo_id
+
+        tables = {}
+        for k, v in row_dict.items():
+            t = utils.parse_table_from_key(k)
+            if t:
+                if t not in tables:
+                    tables[t] = {}
+
+                tables[t][k] = v
+        for k, v in tables.items():
+            if k not in GET_CENSUS_TABLE.keys():
+                continue
+            m = GET_CENSUS_TABLE[k]
+            v = dict((k.lower(), v) for k,v in v.iteritems())
+            v['geo_id'] = geo_id
+            o = m(**v)
+            o.save()
+</pre>
+<p>Quick rundown of the action here: we&#8217;re getting a census table file (one of the 47 created in step 2) as a command line argument, and associating each row with a <code>CensusBlock</code> object based upon that ever handy cross reference table that we created earlier. The <code>utils.parse_table_from_key(k)</code> part is, again, referencing a function from the <code>utils</code> module that uses a regex to parse which census table the row contains data from based upon the keys the pattern that is present in the row. Since I&#8217;m only interested in 14 of the tables, I&#8217;m only actually loading the data that is from those tables (hence the <code>if k not in GET_CENSUS_TABLE.keys():</code> part. After that, it&#8217;s just passing the geo_id and the table values into the Django model (which is looked up in the <code>GET_CENSUS_TABLE</code> dict) as keyword arguments. By the way, that&#8217;s my new favorite Python shortcut: <code>o = m(**v)</code>.</p>
+<p><strong>The final relation</strong><br />
+The final step here is to relate my arbitrary geographies with the census blocks they contain. I chose to do this by creating a <code>ForeignKey</code> from the <code>CensusBlock</code> object to the <code>Locality</code> object which contains it. I&#8217;m still tweaking the actual queries that I&#8217;m going to run in this stage but, for the purposes of a proof of concept, it&#8217;s pretty solid. Here&#8217;s my script for this last stage:</p>
+<pre class="brush: python; title: ; notranslate">
+#!/bin/env python
+import sys
+import site
+import os
+import json
+
+from csvkit.unicsv import UnicodeCSVReader
+
+import config
+import utils
+
+... LA LA LA Django env setup LA LA LA ...
+
+from mybahai.census.models import *
+from mybahai.natgeo.models import Locality
+
+if len(sys.argv) &lt; 2:
+    sys.exit('You must provide a state abbreviation as an argument for this script.')
+
+STATE = sys.argv[1]
+
+locs = Locality.objects.filter(locality_state__state_abrv=STATE.upper())
+for loc in locs:
+    first_pass = CensusBlock.objects.filter(mpoly__coveredby=loc.mpoly)
+    total_pop = 0
+    for block in first_pass:
+        block.locality = loc
+        block.save()
+        p1 = P1.objects.filter(geo_id=block.geo_id)
+        total_pop += p1[0].p001001
+    second_pass = CensusBlock.objects.filter(mpoly__overlaps=loc.mpoly)
+    for block in second_pass:
+        if not block.locality:
+            block.locality = loc
+            block.save()
+            p1 = P1.objects.filter(geo_id=block.geo_id)
+            total_pop += p1[0].p001001
+    third_pass = CensusBlock.objects.filter(mpoly__bboverlaps=loc.mpoly)
+    for block in third_pass:
+        if not block.locality:
+            block.locality = loc
+            block.save()
+            p1 = P1.objects.filter(geo_id=block.geo_id)
+            total_pop += p1[0].p001001
+    loc.locality_census_pop = total_pop
+    loc.save()
+    print 'Saved %s' % loc.locality_name
+</pre>
+<p>I&#8217;m actually trying to catch the census blocks associated with a particular area in three, ever widening, passes because the first time I tried this, just using the <code>CensusBlock.objects.filter(mpoly__coveredby=loc.mpoly)</code> filter, I ended up with a bunch of <code>CensusBlock</code> objects that weren&#8217;t associated with any <code>Locality</code> objects. It&#8217;s still a little messy but, just to show you it can actually be done, here&#8217;s a screen shot showing a side-by-side comparison of what our Washington, D.C. <code>Locality</code> boundaries (which in this case correspond precisely with the actual boundaries of Washington, D.C.) look like next to all the census blocks that make it up:</p>
+<p><img src="http://www.static-eric.com/wp-content/uploads/2011/11/side-by-side-dc-1024x687.jpg" alt="" title="side-by-side-dc" width="720" height="483" class="aligncenter size-large wp-image-126" /></p>
+<p><strong>In all practicality&#8230;</strong><br />
+Getting this far was relatively simple, given the amount of work that was already done for me by the wonderful IRE project. The next stage is going to be kind of where the rubber hits the road in terms of usability. I don&#8217;t really want to have to run through this process on every state more than once so I&#8217;m thinking I&#8217;ll probably just serialize the parts I need and store them in an S3 bucket where I can grab it when I need it. But that&#8217;s a project for later&#8230; </p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.static-eric.com/2011/11/13/2010-census-a-pain-in-my-block/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
 		<item>
 		<title>Mapping tools 101: A few things I&#8217;ve picked up</title>
 		<link>http://www.static-eric.com/2011/10/29/mapping-tools-101-a-few-things-ive-picked-up/</link>
